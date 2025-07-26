@@ -1,0 +1,17 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 2rem;
+}
+form {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+#expense-list {
+    list-style: none;
+    padding: 0;
+}
+#expense-list li {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #ddd;
+}
