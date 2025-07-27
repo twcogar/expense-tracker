@@ -6,51 +6,57 @@ const categories = [
   "Medical", "Other", "Rent", "Subscriptions", "Transport", "Utilities"
 ];
 
-// Populate dropdowns and budget panel
+// Populate category dropdown and budget input fields
 function populateCategories() {
-  const categorySelect = document.getElementById("expense-category");
+  const expenseCategory = document.getElementById("expense-category");
   const budgetSettings = document.getElementById("budget-settings");
 
-  categorySelect.innerHTML = `<option value="">Select Category</option>`;
-  categories.sort().forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categorySelect.appendChild(opt);
+  expenseCategory.innerHTML = `<option value="">Select Category</option>`;
+  categories.sort().forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    expenseCategory.appendChild(option);
 
-    // Budget input
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <label>${cat} Budget: </label>
-      <input type="number" step="0.01" class="budget-input" data-category="${cat}" />
+    // Create budget setting row
+    const budgetRow = document.createElement("div");
+    budgetRow.innerHTML = `
+      <label>${category} Budget: </label>
+      <input type="number" step="0.01" class="budget-input" data-category="${category}" />
     `;
-    budgetSettings.appendChild(div);
+    budgetSettings.appendChild(budgetRow);
   });
 }
 
-// Update chart
+// Update chart display
 function updateChart() {
   const chartPanel = document.getElementById("chart-panel");
   chartPanel.innerHTML = "";
-  const totals = {};
 
+  const totals = {};
   expenses.forEach(exp => {
     totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
   });
 
-  const totalSpending = Object.values(totals).reduce((a, b) => a + b, 0);
-  if (!totalSpending) return;
+  const totalSpent = Object.values(totals).reduce((a, b) => a + b, 0);
+  if (!totalSpent) return;
 
-  Object.keys(totals).forEach(cat => {
-    const percent = ((totals[cat] / totalSpending) * 100).toFixed(1);
-    const slice = document.createElement("div");
-    slice.textContent = `${cat}: $${totals[cat].toFixed(2)} (${percent}%)`;
-    slice.style.padding = "4px";
-    chartPanel.appendChild(slice);
+  Object.entries(totals).forEach(([category, amount]) => {
+    const percent = ((amount / totalSpent) * 100).toFixed(1);
+    const div = document.createElement("div");
+    div.textContent = `${category}: $${amount.toFixed(2)} (${percent}%)`;
+    div.style.padding = "4px";
+    chartPanel.appendChild(div);
   });
 }
 
-// Tab switching
+// Update balance text in multiple places
+function updateBalanceDisplay() {
+  document.getElementById("current-balance-text").textContent = `$${currentBalance.toFixed(2)}`;
+  document.getElementById("inline-current-balance").textContent = `$${currentBalance.toFixed(2)}`;
+}
+
+// Switch tabs
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -60,14 +66,14 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-// Expense submission
+// Handle expense submission
 document.getElementById("expense-form").addEventListener("submit", e => {
   e.preventDefault();
   const name = document.getElementById("expense-name").value;
   const amount = parseFloat(document.getElementById("expense-amount").value);
   const category = document.getElementById("expense-category").value;
 
-  if (!name || !amount || !category) return;
+  if (!name || !amount || !category || isNaN(amount)) return;
 
   expenses.push({ name, amount, category });
   currentBalance -= amount;
@@ -78,41 +84,37 @@ document.getElementById("expense-form").addEventListener("submit", e => {
   document.getElementById("expense-list").appendChild(li);
 
   updateChart();
-  document.getElementById("expense-form").reset();
+  e.target.reset();
 });
 
-// Deposit
+// Handle deposit
 document.getElementById("deposit-form").addEventListener("submit", e => {
   e.preventDefault();
   const deposit = parseFloat(document.getElementById("deposit-amount").value);
   if (!isNaN(deposit)) {
     currentBalance += deposit;
     updateBalanceDisplay();
-    document.getElementById("deposit-form").reset();
+    e.target.reset();
   }
 });
 
-// Balance editing
+// Toggle balance editor
 document.getElementById("edit-balance-btn").addEventListener("click", () => {
   document.getElementById("balance-editor").classList.toggle("hidden");
 });
 
+// Save balance update
 document.getElementById("save-balance-btn").addEventListener("click", () => {
-  const newBal = parseFloat(document.getElementById("bank-balance").value);
-  if (!isNaN(newBal)) {
-    currentBalance = newBal;
+  const newBalance = parseFloat(document.getElementById("bank-balance").value);
+  if (!isNaN(newBalance)) {
+    currentBalance = newBalance;
     updateBalanceDisplay();
-    document.getElementById("balance-editor").classList.add("hidden");
     document.getElementById("bank-balance").value = "";
+    document.getElementById("balance-editor").classList.add("hidden");
   }
 });
 
-function updateBalanceDisplay() {
-  document.getElementById("current-balance-text").textContent = `$${currentBalance.toFixed(2)}`;
-  document.getElementById("inline-current-balance").textContent = `$${currentBalance.toFixed(2)}`;
-}
-
-// Export CSV
+// Export to CSV
 document.getElementById("export-btn").addEventListener("click", () => {
   let csv = "Name,Amount,Category\n";
   expenses.forEach(exp => {
@@ -126,5 +128,6 @@ document.getElementById("export-btn").addEventListener("click", () => {
   a.click();
 });
 
+// Initialize
 populateCategories();
 updateBalanceDisplay();
