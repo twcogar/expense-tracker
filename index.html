@@ -14,10 +14,18 @@
     <div class="container">
         <h1>Expense Tracker</h1>
 
-        <!-- Bank balance input and remaining balance display -->
+        <!-- Bank balance section -->
         <div class="balance-section">
-            <label for="bank-balance">Current Bank Balance ($)</label>
-            <input type="number" id="bank-balance" placeholder="e.g., 1000" required step="0.01" min="0">
+            <!-- Display mode -->
+            <div id="balance-display">
+                <span id="current-balance-text"></span>
+                <button type="button" id="edit-balance-btn" class="secondary-btn">Edit Balance</button>
+            </div>
+            <!-- Edit mode -->
+            <div id="balance-editor" class="hidden">
+                <input type="number" id="bank-balance" placeholder="e.g., 1000" step="0.01" min="0">
+                <button type="button" id="save-balance-btn" class="primary-btn">Save</button>
+            </div>
             <span id="remaining-balance" class="positive">Remaining Balance: $0.00</span>
         </div>
 
