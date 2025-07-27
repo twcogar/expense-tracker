@@ -3,9 +3,16 @@ let expenses = [];
 let chart;
 let budgets = {};
 const categoryColors = {};
+const allCategories = [
+  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment", "Groceries",
+  "Insurance", "Internet", "Loan", "Medical", "Other", "Pet Care", "Phone",
+  "Rent", "Subscriptions", "Transportation", "Utilities"
+];
 
+// Assign fixed category colors (must match CSS or fallback if not styled yet)
 function getCategoryColor(category) {
   if (categoryColors[category]) return categoryColors[category];
+
   const li = document.createElement("li");
   li.setAttribute("data-category", category);
   document.body.appendChild(li);
@@ -23,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
   const depositForm = document.getElementById("deposit-form");
   const balanceInput = document.getElementById("bank-balance");
+  const balanceEditor = document.getElementById("balance-editor");
   const inlineBalanceLabel = document.getElementById("inline-current-balance");
   const expenseList = document.getElementById("expense-list");
   const exportBtn = document.getElementById("export-btn");
@@ -88,9 +96,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderBudgetBars() {
-    const container = document.getElementById("budget-management-bars");
+  function renderBudgetRows() {
+    const container = document.getElementById("budget-container");
     if (!container) return;
+    container.innerHTML = "";
+
+    allCategories.sort().forEach(category => {
+      const row = document.createElement("div");
+      row.classList.add("budget-row");
+
+      const label = document.createElement("label");
+      label.textContent = category;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = `budget-${category.toLowerCase().replace(/\s+/g, '-')}`;
+      input.placeholder = "$0.00";
+      if (budgets[category]) input.value = budgets[category];
+
+      row.appendChild(label);
+      row.appendChild(input);
+      container.appendChild(row);
+    });
+  }
+
+  function renderBudgetBars() {
+    const container = document.getElementById("budget-management-content") || document.getElementById("budget-management-bars");
+    if (!container) return;
+
     container.innerHTML = "";
 
     const totals = {};
@@ -101,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.keys(budgets).sort().forEach((cat) => {
       const spent = totals[cat] || 0;
       const budgeted = budgets[cat] || 0;
-      const percent = budgeted ? Math.min(100, (spent / budgeted) * 100) : 0;
+      const percent = budgeted > 0 ? Math.min(100, (spent / budgeted) * 100) : 0;
       const color = getCategoryColor(cat);
 
       const wrapper = document.createElement("div");
@@ -113,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const bar = document.createElement("div");
       bar.classList.add("budget-bar");
-
       const fill = document.createElement("div");
       fill.classList.add("budget-bar-fill");
       fill.style.width = percent + "%";
@@ -160,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateBalanceDisplay();
     }
     balanceInput.value = "";
+    balanceEditor.classList.add("hidden");
   });
 
   exportBtn.addEventListener("click", () => {
@@ -233,5 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
     status.style.color = output ? "red" : "green";
   }
 
+  // Initialize everything
   updateBalanceDisplay();
+  renderBudgetRows();
 });
