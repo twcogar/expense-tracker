@@ -1,15 +1,22 @@
-/* Base Reset */
+/* Reset and base */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f3f8fc;
+  background-color: #f4faff;
   color: #333;
   padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+h1, h2 {
+  color: #135d9e;
+  margin-bottom: 10px;
 }
 
 header {
@@ -17,128 +24,167 @@ header {
   margin-bottom: 20px;
 }
 
-h1 {
-  color: #145da0;
-}
-
-.balance-inline {
-  font-size: 1.2em;
-  margin-top: 10px;
-  color: #0d3c61;
-}
-
-.tabs {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.tab-btn {
-  padding: 10px 20px;
-  background-color: #e0eaf5;
-  color: #0c3f78;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.tab-btn:hover,
-.tab-btn.active {
-  background-color: #cce0f7;
-  color: #0a2e5c;
+header p {
+  font-size: 1.1em;
+  margin-top: 5px;
+  color: #1c75bc;
   font-weight: bold;
 }
 
-main {
-  max-width: 700px;
-  margin: 0 auto;
+/* Tab navigation */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  background-color: #e6f0fa;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  color: #1c1c1c;
+}
+
+.tab-btn.active {
+  background-color: #1c75bc;
+  color: white;
+  border-radius: 10px;
 }
 
 .tab-content {
   display: none;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .tab-content.active {
   display: block;
+  animation: fadeIn 0.3s ease-in;
 }
 
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+/* Forms */
 form {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
 }
 
 input, select, button {
   padding: 10px;
-  border-radius: 10px;
   border: 1px solid #ccc;
+  border-radius: 8px;
   font-size: 1em;
-  flex: 1 1 100%;
 }
 
 button {
-  background-color: #1976d2;
-  color: #fff;
+  background-color: #1c75bc;
+  color: white;
   border: none;
-  transition: background-color 0.3s;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #125a9c;
+  background-color: #155a8c;
 }
 
-ul#expense-list {
+/* Expense list */
+#expense-list {
   list-style: none;
-  padding-left: 0;
+  margin-top: 10px;
 }
 
 #expense-list li {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  border-left: 6px solid #ccc;
-  background-color: #f8f9fb;
-  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-left: 6px solid #aaa;
+  background: white;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Category colors */
-.category-auto { border-color: #3366cc; }
-.category-clothing { border-color: #ff66b2; }
-.category-credit-card { border-color: #b82e2e; }
-.category-dining { border-color: #ff9900; }
-.category-education { border-color: #9933ff; }
-.category-entertainment { border-color: #e67300; }
-.category-gifts { border-color: #cc0066; }
-.category-groceries { border-color: #66aa00; }
-.category-health { border-color: #dd4477; }
-.category-home { border-color: #109618; }
-.category-insurance { border-color: #990099; }
-.category-loan { border-color: #329262; }
-.category-miscellaneous { border-color: #999999; }
-.category-personal-care { border-color: #c27ba0; }
-.category-savings { border-color: #22aa99; }
-.category-subscriptions { border-color: #316395; }
-.category-taxes { border-color: #aaaa11; }
-.category-transportation { border-color: #3b3eac; }
-.category-travel { border-color: #0099c6; }
-.category-utilities { border-color: #8b0707; }
+#expense-list li span {
+  font-weight: bold;
+}
 
 #chart-panel {
-  margin-top: 20px;
-  text-align: center;
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
 }
 
-#balance-editor.hidden {
-  display: none;
+/* Budget settings */
+.budget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.budget-row input {
+  width: 150px;
+}
+
+/* Expense category colors */
+li[data-category="Groceries"] { border-left-color: #4caf50; }
+li[data-category="Rent"] { border-left-color: #f44336; }
+li[data-category="Utilities"] { border-left-color: #2196f3; }
+li[data-category="Dining"] { border-left-color: #ff9800; }
+li[data-category="Entertainment"] { border-left-color: #9c27b0; }
+li[data-category="Transportation"] { border-left-color: #3f51b5; }
+li[data-category="Medical"] { border-left-color: #e91e63; }
+li[data-category="Clothing"] { border-left-color: #00bcd4; }
+li[data-category="Subscriptions"] { border-left-color: #ffc107; }
+li[data-category="Internet"] { border-left-color: #673ab7; }
+li[data-category="Phone"] { border-left-color: #607d8b; }
+li[data-category="Insurance"] { border-left-color: #795548; }
+li[data-category="Loan"] { border-left-color: #8bc34a; }
+li[data-category="Credit Card"] { border-left-color: #f06292; }
+li[data-category="Auto"] { border-left-color: #009688; }
+li[data-category="Pet Care"] { border-left-color: #ff7043; }
+li[data-category="Other"] { border-left-color: #9e9e9e; }
+
+/* Status and exports */
+#budget-status {
+  margin-top: 10px;
+  color: green;
+  font-weight: bold;
 }
 
 #export-btn {
-  margin-top: 15px;
+  margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .budget-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .budget-row input {
+    width: 100%;
+  }
 }
