@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expense Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
@@ -19,8 +19,8 @@
   <main>
     <section id="expenses" class="tab-content active">
       <form id="expense-form">
-        <input type="text" id="expense-name" placeholder="Expense Name" required />
-        <input type="number" id="expense-amount" placeholder="Amount ($)" step="0.01" required />
+        <input type="text" id="expense-name" placeholder="Expense Name" required>
+        <input type="number" id="expense-amount" placeholder="Amount ($)" step="0.01" required>
         <select id="expense-category" required>
           <option value="">Select Category</option>
           <option value="Credit Card">Credit Card</option>
@@ -35,10 +35,9 @@
         </select>
         <button type="submit">Add Expense</button>
       </form>
-
       <ul id="expense-list"></ul>
+      <canvas id="expense-chart" height="200"></canvas>
       <button id="export-btn">Export to Excel</button>
-      <canvas id="expense-chart" height="250"></canvas>
     </section>
 
     <section id="budgets" class="tab-content">
@@ -55,7 +54,7 @@
         <button id="edit-balance-btn">Edit</button>
       </div>
       <div id="balance-editor" class="hidden">
-        <input type="number" id="bank-balance" placeholder="Enter Balance" step="0.01" />
+        <input type="number" id="bank-balance" placeholder="Enter Balance" step="0.01">
         <button id="save-balance-btn">Save</button>
       </div>
       <span id="remaining-balance">Remaining Balance: $0.00</span>
