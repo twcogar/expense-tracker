@@ -13,9 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const exportBtn = document.getElementById("export-btn");
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
+  const expenseAmountInput = document.getElementById("expense-amount");
+  const inlineBalanceLabel = document.getElementById("inline-current-balance");
 
   function updateBalanceDisplay() {
-    document.getElementById("inline-current-balance").textContent = `$${currentBalance.toFixed(2)}`;
+    inlineBalanceLabel.textContent = `$${currentBalance.toFixed(2)}`;
+    inlineBalanceLabel.style.color = currentBalance < 0 ? 'red' : 'green';
   }
 
   function renderExpenses() {
@@ -24,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const li = document.createElement("li");
       li.textContent = `${e.name} - $${e.amount.toFixed(2)} (${e.category})`;
       const className = `category-${e.category.toLowerCase().replace(/ /g, "-")}`;
-      li.classList.add(className);
+      li.classList.add("expense-item", className);
       expenseList.appendChild(li);
     });
     updateChart();
@@ -64,6 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
           backgroundColor: colors,
         }],
       },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+      },
     });
   }
 
@@ -73,8 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   expenseForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("expense-name").value.trim();
-    const amount = parseFloat(document.getElementById("expense-amount").value);
+    const name = document.getElementById("expense-name").value;
+    const amount = parseFloat(expenseAmountInput.value.replace(/[^0-9.-]+/g, ""));
     const category = document.getElementById("expense-category").value;
 
     if (!name || isNaN(amount) || !category) return;
@@ -111,8 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   exportBtn.addEventListener("click", () => {
+    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
     const wb = XLSX.utils.book_new();
-    const wsData = [["Name", "Amount", "Category"], ...expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category])];
+    const wsData = [["Name", "Amount", "Category"], ...tableRows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
     XLSX.writeFile(wb, "Expenses_Export.xlsx");
@@ -126,6 +134,14 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(btn.dataset.tab).classList.add("active");
     })
   );
+
+  expenseAmountInput.addEventListener("input", () => {
+    let val = expenseAmountInput.value.replace(/[^\d.]/g, '');
+    if (val) {
+      val = parseFloat(val).toFixed(2);
+      expenseAmountInput.value = `$${val}`;
+    }
+  });
 
   updateBalanceDisplay();
 });
