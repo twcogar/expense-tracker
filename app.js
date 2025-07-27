@@ -3,16 +3,17 @@ let expenses = [];
 let chart;
 let budgets = {};
 const categoryColors = {};
-const allCategories = [
-  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment", "Groceries",
-  "Insurance", "Internet", "Loan", "Medical", "Other", "Pet Care", "Phone",
-  "Rent", "Subscriptions", "Transportation", "Utilities"
+
+const defaultCategories = [
+  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment",
+  "Groceries", "Insurance", "Internet", "Loan", "Medical",
+  "Other", "Pet Care", "Phone", "Rent", "Subscriptions",
+  "Transportation", "Utilities"
 ];
 
-// Assign fixed category colors (must match CSS or fallback if not styled yet)
+// Assign fixed category colors
 function getCategoryColor(category) {
   if (categoryColors[category]) return categoryColors[category];
-
   const li = document.createElement("li");
   li.setAttribute("data-category", category);
   document.body.appendChild(li);
@@ -37,6 +38,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
   const expenseAmountInput = document.getElementById("expense-amount");
+
+  // INIT: Populate Budget Fields
+  const budgetContainer = document.getElementById("budget-container");
+  defaultCategories.sort().forEach(cat => {
+    const row = document.createElement("div");
+    row.className = "budget-row";
+    row.innerHTML = `
+      <label for="budget-${cat.toLowerCase().replace(/\s+/g, '-')}">${cat}</label>
+      <input type="number" id="budget-${cat.toLowerCase().replace(/\s+/g, '-')}" placeholder="Budget for ${cat}" />
+    `;
+    budgetContainer.appendChild(row);
+  });
 
   function updateBalanceDisplay() {
     inlineBalanceLabel.textContent = `$${currentBalance.toFixed(2)}`;
@@ -96,32 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderBudgetRows() {
-    const container = document.getElementById("budget-container");
-    if (!container) return;
-    container.innerHTML = "";
-
-    allCategories.sort().forEach(category => {
-      const row = document.createElement("div");
-      row.classList.add("budget-row");
-
-      const label = document.createElement("label");
-      label.textContent = category;
-
-      const input = document.createElement("input");
-      input.type = "number";
-      input.id = `budget-${category.toLowerCase().replace(/\s+/g, '-')}`;
-      input.placeholder = "$0.00";
-      if (budgets[category]) input.value = budgets[category];
-
-      row.appendChild(label);
-      row.appendChild(input);
-      container.appendChild(row);
-    });
-  }
-
   function renderBudgetBars() {
-    const container = document.getElementById("budget-management-content") || document.getElementById("budget-management-bars");
+    const container = document.getElementById("budget-management-content");
     if (!container) return;
 
     container.innerHTML = "";
@@ -134,11 +123,11 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.keys(budgets).sort().forEach((cat) => {
       const spent = totals[cat] || 0;
       const budgeted = budgets[cat] || 0;
-      const percent = budgeted > 0 ? Math.min(100, (spent / budgeted) * 100) : 0;
+      const percent = Math.min(100, (spent / budgeted) * 100);
       const color = getCategoryColor(cat);
 
       const wrapper = document.createElement("div");
-      wrapper.classList.add("budget-bar-container");
+      wrapper.classList.add("budget-bar-wrapper");
 
       const label = document.createElement("div");
       label.classList.add("budget-bar-label");
@@ -201,9 +190,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const wsData = [["Name", "Amount", "Category"], ...tableRows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
+    // Basic formatting
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let C = range.s.c; C <= range.e.c; ++C) {
-      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+      const addr = XLSX.utils.encode_cell({r:0, c:C});
       if (!ws[addr]) continue;
       ws[addr].s = {
         font: { bold: true },
@@ -250,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function checkBudgetStatus() {
     let output = "";
     const totals = {};
-
     expenses.forEach(e => {
       totals[e.category] = (totals[e.category] || 0) + e.amount;
     });
@@ -266,7 +255,5 @@ document.addEventListener("DOMContentLoaded", () => {
     status.style.color = output ? "red" : "green";
   }
 
-  // Initialize everything
   updateBalanceDisplay();
-  renderBudgetRows();
 });
