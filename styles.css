@@ -31,7 +31,7 @@ h1 {
     font-size: 2rem;
 }
 
-/* Bank balance section */
+/* Balance section */
 .balance-section {
     display: flex;
     flex-wrap: wrap;
@@ -40,8 +40,20 @@ h1 {
     margin-bottom: 1.5rem;
 }
 
-.balance-section label {
-    font-weight: 600;
+#balance-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#balance-editor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hidden {
+    display: none;
 }
 
 #bank-balance {
@@ -50,6 +62,10 @@ h1 {
     border-radius: 4px;
     font-size: 1rem;
     width: 160px;
+}
+
+#current-balance-text {
+    font-weight: 600;
 }
 
 #remaining-balance {
@@ -64,6 +80,54 @@ h1 {
 
 #remaining-balance.negative {
     color: var(--danger-color);
+}
+
+/* Buttons */
+.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.primary-btn:hover {
+    background-color: #0056b3;
+}
+
+.secondary-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.secondary-btn:hover {
+    background-color: #5a6268;
+}
+
+#export-btn {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    display: block;
+    width: fit-content;
+}
+
+#export-btn:hover {
+    background-color: #218838;
 }
 
 /* Form styling */
@@ -96,21 +160,6 @@ input, select {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
-}
-
-.primary-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s ease;
-}
-
-.primary-btn:hover {
-    background-color: #0056b3;
 }
 
 /* Expense list and chart layout */
@@ -165,22 +214,4 @@ input, select {
     flex: 1;
     max-width: 400px;
     margin: 0 auto;
-}
-
-/* Export button */
-#export-btn {
-    background-color: var(--success-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    display: block;
-    width: fit-content;
-}
-
-#export-btn:hover {
-    background-color: #218838;
 }
