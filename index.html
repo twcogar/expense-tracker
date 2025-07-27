@@ -14,6 +14,13 @@
     <div class="container">
         <h1>Expense Tracker</h1>
 
+        <!-- Bank balance input and remaining balance display -->
+        <div class="balance-section">
+            <label for="bank-balance">Current Bank Balance ($)</label>
+            <input type="number" id="bank-balance" placeholder="e.g., 1000" required step="0.01" min="0">
+            <span id="remaining-balance" class="positive">Remaining Balance: $0.00</span>
+        </div>
+
         <form id="expense-form">
             <div class="form-group">
                 <label for="name">Expense Name</label>
