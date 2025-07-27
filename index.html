@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Expense Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
@@ -14,70 +15,66 @@
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="expenses-tab">Expenses</button>
-    <button class="tab-btn" data-tab="deposits-tab">Deposits</button>
-    <button class="tab-btn" data-tab="budgets-tab">Set Budgets</button>
+    <button class="tab-btn" data-tab="deposit-tab">Deposits</button>
+    <button class="tab-btn" data-tab="budget-tab">Set Budgets</button>
     <button class="tab-btn" data-tab="balance-tab">Edit Balance</button>
   </div>
 
-  <section id="expenses-tab" class="tab-content active">
-    <h2>Add Expense</h2>
-    <form id="expense-form">
-      <input type="text" id="expense-name" placeholder="Expense name" required />
-      <input type="number" id="expense-amount" placeholder="Amount ($)" step="0.01" required />
-      <select id="expense-category" required>
-        <option value="">Select category</option>
-        <option value="Auto">Auto</option>
-        <option value="Clothing">Clothing</option>
-        <option value="Credit Card">Credit Card</option>
-        <option value="Dining">Dining</option>
-        <option value="Education">Education</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Gifts">Gifts</option>
-        <option value="Groceries">Groceries</option>
-        <option value="Health">Health</option>
-        <option value="Home">Home</option>
-        <option value="Insurance">Insurance</option>
-        <option value="Loan">Loan</option>
-        <option value="Miscellaneous">Miscellaneous</option>
-        <option value="Personal Care">Personal Care</option>
-        <option value="Savings">Savings</option>
-        <option value="Subscriptions">Subscriptions</option>
-        <option value="Taxes">Taxes</option>
-        <option value="Transportation">Transportation</option>
-        <option value="Travel">Travel</option>
-        <option value="Utilities">Utilities</option>
-      </select>
-      <button type="submit">Add</button>
-    </form>
-    <ul id="expense-list"></ul>
+  <main>
+    <section id="expenses-tab" class="tab-content active">
+      <form id="expense-form">
+        <input type="text" id="expense-name" placeholder="Expense name" required />
+        <input type="number" id="expense-amount" step="0.01" placeholder="Amount ($)" required />
+        <select id="expense-category" required>
+          <option value="" disabled selected>Select category</option>
+          <option value="Auto">Auto</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Dining">Dining</option>
+          <option value="Education">Education</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Gifts">Gifts</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Health">Health</option>
+          <option value="Home">Home</option>
+          <option value="Insurance">Insurance</option>
+          <option value="Loan">Loan</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+          <option value="Personal Care">Personal Care</option>
+          <option value="Savings">Savings</option>
+          <option value="Subscriptions">Subscriptions</option>
+          <option value="Taxes">Taxes</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Travel">Travel</option>
+          <option value="Utilities">Utilities</option>
+        </select>
+        <button type="submit">Add Expense</button>
+      </form>
+      <ul id="expense-list"></ul>
+      <div id="chart-panel" class="chart-panel"></div>
+      <button id="export-btn">Export to Excel</button>
+    </section>
 
-    <h3>Spending Summary</h3>
-    <div class="chart-panel" id="chart-panel"></div>
+    <section id="deposit-tab" class="tab-content">
+      <form id="deposit-form">
+        <input type="number" id="deposit-amount" step="0.01" placeholder="Deposit amount ($)" required />
+        <button type="submit">Add Deposit</button>
+      </form>
+    </section>
 
-    <button id="export-btn">Export to Excel</button>
-  </section>
+    <section id="budget-tab" class="tab-content">
+      <p><strong>Coming Soon:</strong> Budget category limits and goal tracking!</p>
+      <div id="budget-settings"></div>
+    </section>
 
-  <section id="deposits-tab" class="tab-content">
-    <h2>Add Deposit</h2>
-    <form id="deposit-form">
-      <input type="number" id="deposit-amount" placeholder="Deposit Amount ($)" step="0.01" required />
-      <button type="submit">Add Deposit</button>
-    </form>
-  </section>
-
-  <section id="budgets-tab" class="tab-content">
-    <h2>Set Budgets</h2>
-    <div id="budget-settings"></div>
-  </section>
-
-  <section id="balance-tab" class="tab-content">
-    <h2>Edit Starting Balance</h2>
-    <button id="edit-balance-btn">Edit Balance</button>
-    <div id="balance-editor" class="hidden">
-      <input type="number" id="bank-balance" placeholder="Set Starting Balance ($)" step="0.01" />
-      <button id="save-balance-btn">Save</button>
-    </div>
-  </section>
+    <section id="balance-tab" class="tab-content">
+      <button id="edit-balance-btn">Edit Starting Balance</button>
+      <div id="balance-editor" class="hidden">
+        <input type="number" id="bank-balance" step="0.01" placeholder="Enter new balance ($)" />
+        <button id="save-balance-btn">Save</button>
+      </div>
+    </section>
+  </main>
 
   <script src="app.js"></script>
 </body>
