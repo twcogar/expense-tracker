@@ -22,7 +22,7 @@
     <button class="tab-btn" data-tab="deposit-tab">Deposits</button>
     <button class="tab-btn" data-tab="balance-tab">Edit Balance</button>
     <button class="tab-btn" data-tab="budget-tab">Set Budgets</button>
-    <button class="tab-btn" data-tab="budget-mgmt-tab">Budget Management</button>
+    <button class="tab-btn" data-tab="manage-tab">Budget Management</button>
   </div>
 
   <div id="expenses-tab" class="tab-content active">
@@ -78,6 +78,7 @@
   <div id="budget-tab" class="tab-content">
     <h2>Set Budgets</h2>
     <div id="budget-container">
+      <!-- Sorted alphabetically -->
       <div class="budget-row"><label>Auto</label><input type="number" id="budget-auto" placeholder="Budget Amount" /></div>
       <div class="budget-row"><label>Clothing</label><input type="number" id="budget-clothing" placeholder="Budget Amount" /></div>
       <div class="budget-row"><label>Credit Card</label><input type="number" id="budget-credit-card" placeholder="Budget Amount" /></div>
@@ -100,11 +101,9 @@
     <div id="budget-status"></div>
   </div>
 
-  <div id="budget-mgmt-tab" class="tab-content">
+  <div id="manage-tab" class="tab-content">
     <h2>Budget Management</h2>
-    <div id="budget-visuals">
-      <!-- Budget bars will be injected here dynamically via app.js -->
-    </div>
+    <div id="budget-bars-container"></div>
   </div>
 
   <script src="app.js"></script>
