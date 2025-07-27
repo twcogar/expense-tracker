@@ -66,11 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
     expenses.forEach((e, i) => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
-      li.innerHTML = `
-        <span>${e.name}</span>
-        <span>$${e.amount.toFixed(2)} - ${e.category}</span>
-        <button class="delete-btn" data-index="${i}" title="Delete">&times;</button>
-      `;
+li.innerHTML = `
+  <div class="expense-name">${e.name}</div>
+  <div class="expense-amount">$${e.amount.toFixed(2)}</div>
+  <div class="expense-category">${e.category}</div>
+  <button class="delete-btn" data-index="${i}" title="Delete">&times;</button>
+`;
       expenseList.appendChild(li);
     });
 
