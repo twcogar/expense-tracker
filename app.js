@@ -4,9 +4,13 @@ const amountInput = document.getElementById('amount');
 const categorySelect = document.getElementById('category');
 const list = document.getElementById('expense-list');
 const ctx = document.getElementById('expense-chart').getContext('2d');
+const bankBalanceInput = document.getElementById('bank-balance');
+const remainingBalanceSpan = document.getElementById('remaining-balance');
 
-// Load existing expenses from localStorage or start with an empty array
+// Load existing expenses and bank balance from localStorage
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+let bankBalance = parseFloat(localStorage.getItem('bankBalance')) || 0;
+bankBalanceInput.value = bankBalance;
 
 // Initialize the pie chart
 let chart = new Chart(ctx, {
@@ -47,6 +51,15 @@ function updateChart() {
     chart.update();
 }
 
+// Update the remaining balance display
+function updateRemainingBalance() {
+    const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const remaining = bankBalance - totalExpenses;
+    remainingBalanceSpan.textContent = `Remaining Balance: ${formatCurrency(remaining)}`;
+    remainingBalanceSpan.classList.remove('positive', 'negative');
+    remainingBalanceSpan.classList.add(remaining >= 0 ? 'positive' : 'negative');
+}
+
 // Render the list of expenses with delete buttons
 function renderList() {
     list.innerHTML = '';
@@ -62,6 +75,7 @@ function renderList() {
             localStorage.setItem('expenses', JSON.stringify(expenses));
             renderList();
             updateChart();
+            updateRemainingBalance();
         });
         li.appendChild(deleteBtn);
         list.appendChild(li);
@@ -81,14 +95,24 @@ form.addEventListener('submit', (e) => {
     localStorage.setItem('expenses', JSON.stringify(expenses));
     renderList();
     updateChart();
+    updateRemainingBalance();
     form.reset();
     // Reset category select to default option
     categorySelect.selectedIndex = 0;
 });
 
+// Update bank balance when user types
+bankBalanceInput.addEventListener('input', (e) => {
+    const value = parseFloat(e.target.value);
+    bankBalance = isNaN(value) ? 0 : value;
+    localStorage.setItem('bankBalance', bankBalance);
+    updateRemainingBalance();
+});
+
 // Initial render when the page loads
 renderList();
 updateChart();
+updateRemainingBalance();
 
 // Excel export function using ExcelJS library
 async function exportToExcel() {
