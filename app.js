@@ -4,10 +4,8 @@ let chart;
 let budgets = {};
 const categoryColors = {};
 
-// Assign fixed category colors (must match CSS or fallback if not styled yet)
 function getCategoryColor(category) {
   if (categoryColors[category]) return categoryColors[category];
-
   const li = document.createElement("li");
   li.setAttribute("data-category", category);
   document.body.appendChild(li);
@@ -25,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
   const depositForm = document.getElementById("deposit-form");
   const balanceInput = document.getElementById("bank-balance");
-  const balanceEditor = document.getElementById("balance-editor");
   const inlineBalanceLabel = document.getElementById("inline-current-balance");
   const expenseList = document.getElementById("expense-list");
   const exportBtn = document.getElementById("export-btn");
@@ -50,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
       expenseList.appendChild(li);
     });
     updateChart();
-    renderBudgetBars(); // Update bars when expenses change
+    renderBudgetBars();
   }
 
   function updateChart() {
@@ -92,9 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderBudgetBars() {
-    const container = document.getElementById("budget-management-content");
+    const container = document.getElementById("budget-management-bars");
     if (!container) return;
-
     container.innerHTML = "";
 
     const totals = {};
@@ -105,18 +101,19 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.keys(budgets).sort().forEach((cat) => {
       const spent = totals[cat] || 0;
       const budgeted = budgets[cat] || 0;
-      const percent = Math.min(100, (spent / budgeted) * 100);
+      const percent = budgeted ? Math.min(100, (spent / budgeted) * 100) : 0;
       const color = getCategoryColor(cat);
 
       const wrapper = document.createElement("div");
-      wrapper.classList.add("budget-bar-wrapper");
+      wrapper.classList.add("budget-bar-container");
 
       const label = document.createElement("div");
-      label.classList.add("budget-bar-title");
+      label.classList.add("budget-bar-label");
       label.textContent = `${cat}: $${spent.toFixed(2)} of $${budgeted.toFixed(2)}`;
 
       const bar = document.createElement("div");
       bar.classList.add("budget-bar");
+
       const fill = document.createElement("div");
       fill.classList.add("budget-bar-fill");
       fill.style.width = percent + "%";
@@ -163,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
       updateBalanceDisplay();
     }
     balanceInput.value = "";
-    balanceEditor.classList.add("hidden");
   });
 
   exportBtn.addEventListener("click", () => {
@@ -172,10 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const wsData = [["Name", "Amount", "Category"], ...tableRows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-    // Apply basic formatting
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let C = range.s.c; C <= range.e.c; ++C) {
-      const addr = XLSX.utils.encode_cell({r:0, c:C});
+      const addr = XLSX.utils.encode_cell({ r: 0, c: C });
       if (!ws[addr]) continue;
       ws[addr].s = {
         font: { bold: true },
@@ -184,8 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
-
-    // TODO: Chart embedding (complex in XLSX-only; full support via Excel automation)
     XLSX.writeFile(wb, "Expenses_Export.xlsx");
   });
 
@@ -199,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   expenseAmountInput.addEventListener("input", () => {
-    // Remove all non-numeric input (let user type freely)
     const raw = expenseAmountInput.value.replace(/[^0-9.]/g, '');
     expenseAmountInput.value = raw;
   });
