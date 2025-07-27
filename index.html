@@ -1,85 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Expense Tracker</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.2.1/dist/exceljs.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <div class="container">
+    <header>
         <h1>Expense Tracker</h1>
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="expenses">Expenses</button>
+            <button class="tab-btn" data-tab="budgets">Set Budgets</button>
+            <button class="tab-btn" data-tab="balance">Edit Balance</button>
+        </nav>
+    </header>
 
-        <!-- Balance Section -->
-        <div class="balance-section">
-            <!-- Display mode -->
-            <div id="balance-display">
-                <span id="current-balance-text"></span>
-                <button type="button" id="edit-balance-btn" class="secondary-btn">Edit Balance</button>
-            </div>
-            <!-- Edit mode -->
-            <div id="balance-editor" class="hidden">
-                <input type="number" id="bank-balance" placeholder="e.g., 1000" step="0.01" min="0">
-                <button type="button" id="save-balance-btn" class="primary-btn">Save</button>
-            </div>
-            <span id="remaining-balance" class="positive">Remaining Balance: $0.00</span>
-        </div>
+    <main>
+        <section id="expenses" class="tab-content active">
+            <form id="expense-form">
+                <input type="text" id="expense-name" placeholder="Expense Name" required />
+                <input type="number" id="expense-amount" placeholder="Amount ($)" required step="0.01" />
+<select id="expense-category" required>
+    <option value="">Select Category</option>
+    <option value="Credit Card">Credit Card</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Food">Food</option>
+    <option value="Insurance">Insurance</option>
+    <option value="Loans">Loans</option>
+    <option value="Other">Other</option>
+    <option value="Rent">Rent</option>
+    <option value="Transportation">Transportation</option>
+    <option value="Utilities">Utilities</option>
+</select>
+                <button type="submit">Add Expense</button>
+            </form>
 
-        <!-- Expense Form -->
-        <form id="expense-form">
-            <div class="form-group">
-                <label for="name">Expense Name</label>
-                <input type="text" id="name" placeholder="e.g., Groceries" required>
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount ($)</label>
-                <input type="number" id="amount" placeholder="e.g., 50" required step="0.01" min="0">
-            </div>
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" required>
-                    <option value="" disabled selected>Select category</option>
-                    <option value="Food">Food</option>
-                    <option value="Housing">Housing</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Transportation">Transportation</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Insurance">Insurance</option>
-                    <option value="Loans">Loans</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Education">Education</option>
-                    <option value="Personal">Personal</option>
-                    <option value="Miscellaneous">Miscellaneous</option>
-                </select>
-            </div>
-            <button type="submit" class="primary-btn">Add Expense</button>
-        </form>
-
-        <!-- List and Chart -->
-        <div class="expense-content">
             <ul id="expense-list"></ul>
-            <div class="chart-container">
-                <canvas id="expense-chart"></canvas>
+            <button id="export-btn">Export to Excel</button>
+            <canvas id="expense-chart"></canvas>
+        </section>
+
+        <section id="budgets" class="tab-content">
+            <h2>Set Budgets</h2>
+            <div id="budget-settings"></div>
+            <button id="save-budgets-btn">Save Budgets</button>
+            <div id="budget-bars"></div>
+        </section>
+
+        <section id="balance" class="tab-content">
+            <h2>Current Balance</h2>
+            <div id="balance-display">
+                <span id="current-balance-text">Not Set</span>
+                <button id="edit-balance-btn">Edit</button>
             </div>
-        </div>
+            <div id="balance-editor" class="hidden">
+                <input type="number" id="bank-balance" placeholder="Enter Balance" step="0.01" />
+                <button id="save-balance-btn">Save</button>
+            </div>
+            <span id="remaining-balance">Remaining Balance: $0.00</span>
+        </section>
+    </main>
 
-        <!-- Export Button -->
-        <button type="button" id="export-btn" class="primary-btn">Export to Excel</button>
-
-        <!-- Budgets Section -->
-        <button type="button" id="toggle-budget-panel" class="secondary-btn">Set Budgets</button>
-        <div id="budget-panel" class="hidden budget-panel">
-            <h2>Budgets</h2>
-            <div id="budget-inputs"></div>
-            <button type="button" id="save-budgets-btn" class="primary-btn">Save Budgets</button>
-        </div>
-
-        <!-- Progress bars container -->
-        <div id="budget-progress-container"></div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
