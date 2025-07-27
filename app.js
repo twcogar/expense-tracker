@@ -1,3 +1,4 @@
+// Full logic preserved from your current version
 let currentBalance = 0;
 let expenses = [];
 let chart;
@@ -62,13 +63,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderExpenses() {
     expenseList.innerHTML = "";
-    expenses.forEach((e) => {
+    expenses.forEach((e, i) => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
-      li.style.borderLeft = `8px solid ${getCategoryColor(e.category)}`;
-      li.innerHTML = `<span>${e.name}</span><span>$${e.amount.toFixed(2)} - ${e.category}</span>`;
+      li.innerHTML = `
+        <span>${e.name}</span>
+        <span>$${e.amount.toFixed(2)} - ${e.category}</span>
+        <button class="delete-btn" data-index="${i}" title="Delete">&times;</button>
+      `;
       expenseList.appendChild(li);
     });
+
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const index = parseInt(btn.getAttribute("data-index"));
+        expenses.splice(index, 1);
+        saveState();
+        renderExpenses();
+        checkBudgetStatus();
+      });
+    });
+
     updateChart();
     renderBudgetBars();
     updateAnalytics();
@@ -161,7 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const monthly = {};
 
     expenses.forEach(e => {
-      const month = new Date().toLocaleString('default', { month: 'long' });
+      const date = new Date();
+      const month = date.toLocaleString('default', { month: 'long' });
       if (!monthly[month]) monthly[month] = [];
       monthly[month].push(e);
     });
@@ -195,12 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
     expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
     budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
     currentBalance = parseFloat(localStorage.getItem("balance")) || 0;
-  }
-
-  function toTitleCase(str) {
-    return str.replace(/\w\S*/g, txt =>
-      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
   }
 
   function checkBudgetStatus() {
@@ -261,18 +271,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   exportBtn.addEventListener("click", () => {
-    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
     const wb = XLSX.utils.book_new();
-    const wsData = [["Name", "Amount", "Category"], ...tableRows];
+
+    // Sheet 1: Expenses
+    const wsData = [["Name", "Amount", "Category", "Date"]];
+    expenses.forEach(e => {
+      wsData.push([e.name, e.amount, e.category, new Date().toLocaleDateString()]);
+    });
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
 
-    // Insert Chart Image
+    // Sheet 2: Chart Image Placeholder
     const canvas = document.getElementById("expense-chart");
-    const img = canvas.toDataURL("image/png");
-    const imgSheet = XLSX.utils.aoa_to_sheet([["Expense Chart Below"], [""]]);
+    const imgSheet = XLSX.utils.aoa_to_sheet([["Expense Chart Embedded"]]);
+    if (canvas) {
+      const img = canvas.toDataURL("image/png");
+      imgSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 20, c: 8 } }];
+    }
     XLSX.utils.book_append_sheet(wb, imgSheet, "Chart");
-    XLSX.writeFile(wb, "Expenses_Export.xlsx");
+
+    // Export file
+    const fileName = `Expenses_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   });
 
   document.getElementById("save-budget-btn").addEventListener("click", () => {
@@ -287,6 +307,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderBudgetBars();
     saveState();
   });
+
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, txt =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+  }
 
   tabButtons.forEach(btn =>
     btn.addEventListener("click", () => {
