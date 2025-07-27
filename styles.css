@@ -1,165 +1,144 @@
-/* Reset and base */
-* {
-  box-sizing: border-box;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f2f8fc;
+  color: #222;
   margin: 0;
   padding: 0;
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f7fb;
-  color: #333;
-  padding: 20px;
-}
-
 header {
+  background-color: #3399ff;
+  color: white;
+  padding: 20px;
   text-align: center;
-  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  font-size: 2em;
-  color: #2c3e50;
+  margin: 0;
 }
 
-h2 {
-  color: #2c3e50;
-  margin-bottom: 15px;
+.balance-inline {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1.1em;
 }
 
-/* Tabs */
 .tabs {
   display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  justify-content: space-around;
+  background-color: #e2efff;
+  padding: 10px;
+  border-bottom: 2px solid #ccc;
 }
 
 .tab-btn {
-  background-color: #e0e7ff;
-  color: #2c3e50;
+  background-color: #cfe9ff;
   border: none;
-  padding: 12px 24px;
-  margin: 5px;
+  padding: 10px 20px;
   border-radius: 20px;
-  font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  color: #004a80;
+  transition: background-color 0.3s ease;
 }
 
-.tab-btn:hover {
-  background-color: #c7d2fe;
-}
-
+.tab-btn:hover,
 .tab-btn.active {
-  background-color: #4f46e5;
-  color: #f8f9fa;
+  background-color: #80c8ff;
+  font-weight: bold;
 }
 
-/* Sections */
 .tab-content {
   display: none;
-  background-color: white;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .tab-content.active {
   display: block;
 }
 
-/* Forms and inputs */
 form {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
   margin-bottom: 20px;
 }
 
-input, select, button {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-}
-
-input:focus, select:focus {
-  border-color: #4f46e5;
-  outline: none;
+input,
+select,
+button {
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
 }
 
 button {
-  background-color: #4f46e5;
+  background-color: #007acc;
   color: white;
   border: none;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 button:hover {
-  background-color: #3b39c4;
+  background-color: #005f99;
 }
 
-/* Lists and display */
 #expense-list {
   list-style: none;
   padding: 0;
+  margin-top: 20px;
 }
 
 #expense-list li {
-  background-color: #eef2ff;
-  margin-bottom: 8px;
-  padding: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-left: 10px solid #007acc;
+  background-color: #eef7ff;
   border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.category-auto { border-color: #3366cc; }
+.category-groceries { border-color: #33cc33; }
+.category-utilities { border-color: #ff9900; }
+.category-entertainment { border-color: #cc33ff; }
+.category-loan { border-color: #ff6666; }
+.category-credit-card { border-color: #ff3333; }
+.category-insurance { border-color: #009999; }
+.category-health { border-color: #9966ff; }
+.category-travel { border-color: #6699cc; }
+.category-transportation { border-color: #ffcc00; }
+.category-dining { border-color: #ff6600; }
+.category-clothing { border-color: #cc99ff; }
+.category-home { border-color: #66ccff; }
+.category-personal-care { border-color: #ff99cc; }
+.category-taxes { border-color: #990000; }
+.category-savings { border-color: #33ccff; }
+.category-gifts { border-color: #cc0000; }
+.category-subscriptions { border-color: #999999; }
+.category-education { border-color: #000099; }
+.category-miscellaneous { border-color: #cccccc; }
 
 .chart-panel {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  min-height: 250px;
+}
+
+#budget-settings {
   margin-top: 20px;
-  background: #f0f3ff;
-  border-radius: 12px;
-  padding: 10px;
-  text-align: center;
-  min-height: 40px;
 }
 
-/* Pie-style visual segments */
-.chart-segment {
-  display: block;
-  height: 24px;
-  margin: 4px auto;
-  border-radius: 12px;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  line-height: 24px;
-  max-width: 90%;
-}
-
-/* Inline balance */
-.balance-inline {
-  margin-bottom: 10px;
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-#budget-settings > div,
-#budget-bars > div {
-  margin-bottom: 10px;
-}
-
-.hidden {
+#balance-editor.hidden {
   display: none;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 600px) {
-  form {
-    flex-direction: column;
-  }
-
-  .tab-btn {
-    width: 100%;
-  }
 }
