@@ -75,7 +75,7 @@ header p {
 }
 
 .tab-btn.active {
-  background-color: #1c75bc;
+  background: linear-gradient(135deg, #42a5f5, #1976d2);
   color: white;
 }
 
@@ -133,14 +133,16 @@ button:hover {
 }
 
 #expense-list li {
-  padding: 10px;
-  margin-bottom: 5px;
-  border-left: 6px solid #aaa;
-  background: white;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  position: relative;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background: white;
+  overflow: hidden;
   transition: background 0.2s ease;
 }
 
@@ -150,6 +152,17 @@ button:hover {
 
 #expense-list li span {
   font-weight: bold;
+}
+
+/* Gradient left-edge strips */
+#expense-list li::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 6px;
+  height: 100%;
+  border-radius: 6px 0 0 6px;
+  background: var(--gradient-color, linear-gradient(to bottom, #2196f3, #1c75bc));
 }
 
 /* Chart Panel */
@@ -201,6 +214,12 @@ button:hover {
 }
 
 /* Balance Editor */
+#balance-editor {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 #balance-editor input {
   text-align: center;
   width: 100%;
@@ -208,213 +227,23 @@ button:hover {
   border: 2px solid #1c75bc;
 }
 
-/* Expense category colors */
-li[data-category="Groceries"] { border-left-color: #4caf50; }
-li[data-category="Rent"] { border-left-color: #f44336; }
-li[data-category="Utilities"] { border-left-color: #2196f3; }
-li[data-category="Dining"] { border-left-color: #ff9800; }
-li[data-category="Entertainment"] { border-left-color: #9c27b0; }
-li[data-category="Transportation"] { border-left-color: #3f51b5; }
-li[data-category="Medical"] { border-left-color: #e91e63; }
-li[data-category="Clothing"] { border-left-color: #00bcd4; }
-li[data-category="Subscriptions"] { border-left-color: #ffc107; }
-li[data-category="Internet"] { border-left-color: #673ab7; }
-li[data-category="Phone"] { border-left-color: #607d8b; }
-li[data-category="Insurance"] { border-left-color: #795548; }
-li[data-category="Loan"] { border-left-color: #8bc34a; }
-li[data-category="Credit Card"] { border-left-color: #f06292; }
-li[data-category="Auto"] { border-left-color: #009688; }
-li[data-category="Pet Care"] { border-left-color: #ff7043; }
-li[data-category="Other"] { border-left-color: #9e9e9e; }
-
-/* Budget status and export */
-#budget-status {
-  margin-top: 10px;
-  color: green;
-  font-weight: bold;
-}
-
-#export-btn {
-  margin-top: 20px;
-  padding: 10px 16px;
-  font-size: 1rem;
+#save-balance-btn {
   background-color: #28a745;
   color: white;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-#export-btn:hover {
+#save-balance-btn:hover {
   background-color: #218838;
 }
 
-/* Budget Management bars */
-#budget-management-content {
-  margin-top: 20px;
-}
-
-.budget-bar-wrapper {
-  margin-bottom: 16px;
-}
-
-.budget-bar-title {
-  font-weight: bold;
-  margin-bottom: 6px;
-  font-size: 1rem;
-  color: #135d9e;
-}
-
-.budget-bar {
-  height: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #dfefff;
-}
-
-.budget-bar-fill {
-  height: 100%;
-  text-align: right;
-  padding-right: 6px;
-  color: white;
-  font-weight: bold;
-  line-height: 20px;
-  border-radius: 10px 0 0 10px;
-}
-
-/* Analytics tab styles */
-.analytics-summary {
-  margin-top: 20px;
-  font-size: 1.1em;
-  color: #1c1c1c;
-}
-
-.analytics-summary p {
-  margin-bottom: 8px;
-}
-
-/* History tab */
-#history-selector {
-  margin: 10px 0;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.history-table th,
-.history-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .tabs {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .tab-btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  .budget-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .budget-row input {
-    width: 100%;
-  }
-}
-
-/* --- Phase 2 Enhancements Below --- */
-
-/* Budget bar labels */
-.budget-bar-label {
-  font-weight: bold;
-  margin-bottom: 4px;
-  font-size: 0.95em;
-  color: #333;
-}
-
-/* Analytics grid layout */
-.analytics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-  background: #f5faff;
-  padding: 16px;
-  border-radius: 10px;
-  border: 1px solid #cbe4f5;
-}
-
-.analytics-grid div {
-  padding: 10px;
-  background: white;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: bold;
-  color: #135d9e;
-}
-
-/* History summary entries */
-#history-summary ul {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 10px;
-}
-
-#history-summary ul li {
-  background: #ffffff;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  border-left: 5px solid #1c75bc;
-  font-weight: 500;
-}
-
-/* Responsive chart export */
-canvas#expense-chart {
-  max-height: 300px;
-  margin: auto;
-}
-/* EXPENSE ITEM STRUCTURE */
-
-#expense-list li {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 10px 10px 14px;
-  position: relative;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  background: white;
-  overflow: hidden;
-}
-
-/* Left edge gradient color strip */
-#expense-list li::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 6px;
-  height: 100%;
-  border-radius: 6px 0 0 6px;
-  background: linear-gradient(to bottom, #2196f3, #1c75bc); /* default fallback */
-}
-
-/* Structure inside the row */
+/* Expense inner structure */
 .expense-name {
   font-weight: bold;
   white-space: nowrap;
@@ -448,15 +277,161 @@ canvas#expense-chart {
   color: white;
 }
 
-/* Full-width save button */
-#save-balance-btn {
+/* Category border colors — backup */
+li[data-category="Groceries"] { --gradient-color: linear-gradient(to bottom, #4caf50, #388e3c); }
+li[data-category="Rent"] { --gradient-color: linear-gradient(to bottom, #f44336, #c62828); }
+li[data-category="Utilities"] { --gradient-color: linear-gradient(to bottom, #2196f3, #1976d2); }
+li[data-category="Dining"] { --gradient-color: linear-gradient(to bottom, #ff9800, #ef6c00); }
+li[data-category="Entertainment"] { --gradient-color: linear-gradient(to bottom, #9c27b0, #7b1fa2); }
+li[data-category="Transportation"] { --gradient-color: linear-gradient(to bottom, #3f51b5, #303f9f); }
+li[data-category="Medical"] { --gradient-color: linear-gradient(to bottom, #e91e63, #c2185b); }
+li[data-category="Clothing"] { --gradient-color: linear-gradient(to bottom, #00bcd4, #0097a7); }
+li[data-category="Subscriptions"] { --gradient-color: linear-gradient(to bottom, #ffc107, #ffa000); }
+li[data-category="Internet"] { --gradient-color: linear-gradient(to bottom, #673ab7, #512da8); }
+li[data-category="Phone"] { --gradient-color: linear-gradient(to bottom, #607d8b, #455a64); }
+li[data-category="Insurance"] { --gradient-color: linear-gradient(to bottom, #795548, #5d4037); }
+li[data-category="Loan"] { --gradient-color: linear-gradient(to bottom, #8bc34a, #689f38); }
+li[data-category="Credit Card"] { --gradient-color: linear-gradient(to bottom, #f06292, #d81b60); }
+li[data-category="Auto"] { --gradient-color: linear-gradient(to bottom, #009688, #00796b); }
+li[data-category="Pet Care"] { --gradient-color: linear-gradient(to bottom, #ff7043, #e64a19); }
+li[data-category="Other"] { --gradient-color: linear-gradient(to bottom, #9e9e9e, #616161); }
+
+/* Budget bars */
+.budget-bar-wrapper {
+  margin-bottom: 16px;
+}
+
+.budget-bar-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  color: #135d9e;
+}
+
+.budget-bar {
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #dfefff;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  text-align: right;
+  padding-right: 6px;
+  color: white;
+  font-weight: bold;
+  line-height: 20px;
+  border-radius: 10px 0 0 10px;
+  background: var(--gradient-color, linear-gradient(to right, #1c75bc, #135d9e));
+}
+
+/* Export Button */
+#export-btn {
+  margin-top: 20px;
+  padding: 10px 16px;
+  font-size: 1rem;
   background-color: #28a745;
   color: white;
   border: none;
-  cursor: pointer;
-  padding: 10px 16px;
   border-radius: 6px;
-  font-size: 1rem;
+  cursor: pointer;
   transition: background-color 0.3s ease;
+}
+
+#export-btn:hover {
+  background-color: #218838;
+}
+
+/* Analytics tab */
+.analytics-summary {
+  margin-top: 20px;
+  font-size: 1.1em;
+  color: #1c1c1c;
+}
+
+.analytics-summary p {
+  margin-bottom: 8px;
+}
+
+/* Analytics grid */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  background: #f5faff;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #cbe4f5;
+}
+
+.analytics-grid div {
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #135d9e;
+}
+
+/* History */
+#history-selector {
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.history-table {
   width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+#history-summary ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+#history-summary ul li {
+  background: #ffffff;
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  border-left: 5px solid #1c75bc;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .budget-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .budget-row input {
+    width: 100%;
+  }
+
+  #balance-editor {
+    flex-direction: column;
+  }
 }
