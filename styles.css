@@ -39,6 +39,7 @@ header p {
   padding: 10px;
   border-radius: 12px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -140,10 +141,55 @@ button:hover {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+  gap: 10px;
 }
 
-.budget-row input {
-  width: 150px;
+.budget-row input[type="text"],
+.budget-row input[type="number"] {
+  flex: 1;
+  min-width: 100px;
+}
+
+.budget-save-btn {
+  padding: 8px 14px;
+  font-size: 0.9em;
+  background-color: #28a745;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.budget-save-btn:hover {
+  background-color: #218838;
+}
+
+/* Inline Balance Styles */
+#inline-current-balance {
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.balance-positive {
+  color: green;
+}
+
+.balance-negative {
+  color: red;
+}
+
+/* Hide/Show section */
+.hidden {
+  display: none !important;
+}
+
+/* Balance Editor */
+#balance-editor input {
+  text-align: center;
+  width: 100%;
+  font-size: 1.2em;
+  border: 2px solid #1c75bc;
 }
 
 /* Expense category colors */
@@ -165,7 +211,7 @@ li[data-category="Auto"] { border-left-color: #009688; }
 li[data-category="Pet Care"] { border-left-color: #ff7043; }
 li[data-category="Other"] { border-left-color: #9e9e9e; }
 
-/* Status and exports */
+/* Budget status and export */
 #budget-status {
   margin-top: 10px;
   color: green;
@@ -174,19 +220,6 @@ li[data-category="Other"] { border-left-color: #9e9e9e; }
 
 #export-btn {
   margin-top: 20px;
-}
-
-#inline-current-balance {
-  font-weight: bold;
-  margin-left: 10px;
-}
-
-.balance-positive {
-  color: green;
-}
-
-.balance-negative {
-  color: red;
 }
 
 /* Responsive */
