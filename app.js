@@ -8,7 +8,7 @@ const ctx = document.getElementById('expense-chart').getContext('2d');
 // Load existing expenses from localStorage or start with an empty array
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 
-// Initialise the pie chart
+// Initialize the pie chart
 let chart = new Chart(ctx, {
     type: 'pie',
     data: {
@@ -89,3 +89,72 @@ form.addEventListener('submit', (e) => {
 // Initial render when the page loads
 renderList();
 updateChart();
+
+// Excel export function using ExcelJS library
+async function exportToExcel() {
+    if (expenses.length === 0) {
+        alert('No expenses to export.');
+        return;
+    }
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Expense Tracker';
+
+    // Sheet 1: Raw data
+    const sheet = workbook.addWorksheet('Expenses');
+    sheet.columns = [
+        { header: 'Name', key: 'name', width: 30 },
+        { header: 'Amount ($)', key: 'amount', width: 15 },
+        { header: 'Category', key: 'category', width: 20 }
+    ];
+    expenses.forEach(exp => {
+        sheet.addRow({
+            name: exp.name,
+            amount: exp.amount,
+            category: exp.category
+        });
+    });
+    // Apply currency format to the Amount column
+    sheet.getColumn('amount').numFmt = '$0.00';
+
+    // Sheet 2: Summary
+    const summarySheet = workbook.addWorksheet('Summary');
+    summarySheet.columns = [
+        { header: 'Category', key: 'category', width: 20 },
+        { header: 'Total Amount ($)', key: 'total', width: 20 }
+    ];
+    const totals = {};
+    expenses.forEach(exp => {
+        totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
+    });
+    Object.entries(totals).forEach(([category, total]) => {
+        summarySheet.addRow({ category, total });
+    });
+    summarySheet.getColumn('total').numFmt = '$0.00';
+
+    // Convert the chart canvas to a PNG data URL and embed it in the summary sheet
+    const chartDataURL = chart.toBase64Image();
+    const imageId = workbook.addImage({
+        base64: chartDataURL,
+        extension: 'png'
+    });
+    summarySheet.addImage(imageId, {
+        tl: { col: 0, row: 4 },
+        ext: { width: 500, height: 300 }
+    });
+
+    // Generate the Excel file and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'expenses.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+document.getElementById('export-btn').addEventListener('click', exportToExcel);
