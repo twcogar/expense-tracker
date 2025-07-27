@@ -2,6 +2,24 @@ let currentBalance = 0;
 let expenses = [];
 let chart;
 let budgets = {};
+const categoryColors = {};
+
+// Assign fixed category colors (must match CSS or fallback if not styled yet)
+function getCategoryColor(category) {
+  if (categoryColors[category]) return categoryColors[category];
+
+  const li = document.createElement("li");
+  li.setAttribute("data-category", category);
+  document.body.appendChild(li);
+  const color = getComputedStyle(li).borderLeftColor || getRandomColor();
+  document.body.removeChild(li);
+  categoryColors[category] = color;
+  return color;
+}
+
+function getRandomColor() {
+  return "#" + Math.floor(Math.random() * 16777215).toString(16);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
@@ -32,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       expenseList.appendChild(li);
     });
     updateChart();
-    updateBudgetBars();
+    renderBudgetBars(); // Update bars when expenses change
   }
 
   function updateChart() {
@@ -53,14 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const labels = Object.keys(categoryTotals);
     const data = Object.values(categoryTotals);
-    const colors = labels.map((cat) => {
-      const li = document.createElement("li");
-      li.setAttribute("data-category", cat);
-      document.body.appendChild(li);
-      const color = getComputedStyle(li).borderLeftColor;
-      document.body.removeChild(li);
-      return color || getRandomColor();
-    });
+    const colors = labels.map((cat) => getCategoryColor(cat));
 
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
@@ -80,13 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function getRandomColor() {
-    return "#" + Math.floor(Math.random() * 16777215).toString(16);
-  }
-
-  function updateBudgetBars() {
+  function renderBudgetBars() {
     const container = document.getElementById("budget-management-content");
     if (!container) return;
+
     container.innerHTML = "";
 
     const totals = {};
@@ -94,39 +102,30 @@ document.addEventListener("DOMContentLoaded", () => {
       totals[e.category] = (totals[e.category] || 0) + e.amount;
     });
 
-    const sortedCategories = Object.keys(budgets).sort();
-
-    sortedCategories.forEach(cat => {
+    Object.keys(budgets).sort().forEach((cat) => {
       const spent = totals[cat] || 0;
-      const limit = budgets[cat];
-      const percent = Math.min(100, (spent / limit) * 100).toFixed(0);
+      const budgeted = budgets[cat] || 0;
+      const percent = Math.min(100, (spent / budgeted) * 100);
+      const color = getCategoryColor(cat);
 
-      const barWrapper = document.createElement("div");
-      barWrapper.classList.add("budget-bar-wrapper");
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("budget-bar-wrapper");
 
       const label = document.createElement("div");
-      label.classList.add("budget-label");
-      label.textContent = `${cat}: $${spent.toFixed(2)} of $${limit.toFixed(2)}`;
-      barWrapper.appendChild(label);
+      label.classList.add("budget-bar-title");
+      label.textContent = `${cat}: $${spent.toFixed(2)} of $${budgeted.toFixed(2)}`;
 
       const bar = document.createElement("div");
       bar.classList.add("budget-bar");
-
       const fill = document.createElement("div");
-      fill.classList.add("budget-fill");
-      fill.style.width = `${percent}%`;
-
-      // Set category color
-      const li = document.createElement("li");
-      li.setAttribute("data-category", cat);
-      document.body.appendChild(li);
-      const color = getComputedStyle(li).borderLeftColor;
-      document.body.removeChild(li);
-      fill.style.backgroundColor = color || "#888";
+      fill.classList.add("budget-bar-fill");
+      fill.style.width = percent + "%";
+      fill.style.backgroundColor = color;
 
       bar.appendChild(fill);
-      barWrapper.appendChild(bar);
-      container.appendChild(barWrapper);
+      wrapper.appendChild(label);
+      wrapper.appendChild(bar);
+      container.appendChild(wrapper);
     });
   }
 
@@ -168,27 +167,26 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   exportBtn.addEventListener("click", () => {
+    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
     const wb = XLSX.utils.book_new();
-    const wsData = [["Name", "Amount", "Category"]];
-    expenses.forEach(e => {
-      wsData.push([e.name, e.amount.toFixed(2), e.category]);
-    });
+    const wsData = [["Name", "Amount", "Category"], ...tableRows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
 
-    // Add chart image if available
-    if (chart) {
-      const canvas = document.getElementById("expense-chart");
-      const img = canvas.toDataURL("image/png");
-      const imgSheet = XLSX.utils.aoa_to_sheet([["Expense Chart"]]);
-      imgSheet["!merges"] = [{ s: { c: 0, r: 1 }, e: { c: 3, r: 20 } }];
-      XLSX.utils.book_append_sheet(wb, imgSheet, "Chart");
-
-      // NOTE: XLSX library cannot embed images directly unless converted and patched with custom plugins.
-      // Placeholder behavior; you may export the image separately if needed.
+    // Apply basic formatting
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const addr = XLSX.utils.encode_cell({r:0, c:C});
+      if (!ws[addr]) continue;
+      ws[addr].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: "DCE6F1" } }
+      };
     }
 
-    XLSX.writeFile(wb, "Expenses_Report.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+
+    // TODO: Chart embedding (complex in XLSX-only; full support via Excel automation)
+    XLSX.writeFile(wb, "Expenses_Export.xlsx");
   });
 
   tabButtons.forEach(btn =>
@@ -197,32 +195,32 @@ document.addEventListener("DOMContentLoaded", () => {
       tabContents.forEach(c => c.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(btn.dataset.tab).classList.add("active");
-
-      // Refresh budget bars if tab is Budget Management
-      if (btn.dataset.tab === "budget-mgmt-tab") updateBudgetBars();
     })
   );
 
   expenseAmountInput.addEventListener("input", () => {
-    let val = expenseAmountInput.value.replace(/[^\d.]/g, '');
-    if (val && !isNaN(val)) {
-      expenseAmountInput.value = val;
-    }
+    // Remove all non-numeric input (let user type freely)
+    const raw = expenseAmountInput.value.replace(/[^0-9.]/g, '');
+    expenseAmountInput.value = raw;
   });
 
   document.getElementById("save-budget-btn").addEventListener("click", () => {
-    const rows = document.querySelectorAll("#budget-container .budget-row");
-    rows.forEach(row => {
-      const label = row.querySelector("label").textContent;
-      const input = row.querySelector("input");
-      const value = parseFloat(input.value);
-      if (!isNaN(value)) {
-        budgets[label] = value;
-      }
+    const inputs = document.querySelectorAll("#budget-container input[type='number']");
+    inputs.forEach(input => {
+      const id = input.id;
+      const cat = id.replace("budget-", "").replace(/-/g, " ");
+      const val = parseFloat(input.value);
+      if (!isNaN(val)) budgets[toTitleCase(cat)] = val;
     });
     checkBudgetStatus();
-    updateBudgetBars();
+    renderBudgetBars();
   });
+
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, (txt) =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+  }
 
   function checkBudgetStatus() {
     let output = "";
