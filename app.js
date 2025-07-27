@@ -1,109 +1,181 @@
-let expenses = [];
-let totalBalance = 0;
+const categories = [
+  "Credit Card", "Loans", "Utilities", "Insurance", "Groceries", "Rent",
+  "Transport", "Medical", "Entertainment", "Dining", "Subscriptions", "Other"
+];
+const expenses = [];
+const budgets = {};
+let currentBalance = 0;
 
 const expenseForm = document.getElementById("expense-form");
 const depositForm = document.getElementById("deposit-form");
+const budgetSettings = document.getElementById("budget-settings");
+const budgetBars = document.getElementById("budget-bars");
 const expenseList = document.getElementById("expense-list");
 const chartPanel = document.getElementById("chart-panel");
+const remainingBalance = document.getElementById("remaining-balance");
+const categorySelect = document.getElementById("expense-category");
 const inlineBalance = document.getElementById("inline-current-balance");
 const currentBalanceText = document.getElementById("current-balance-text");
-const bankBalanceInput = document.getElementById("bank-balance");
-const saveBalanceBtn = document.getElementById("save-balance-btn");
-const editBalanceBtn = document.getElementById("edit-balance-btn");
 const balanceEditor = document.getElementById("balance-editor");
-const remainingBalance = document.getElementById("remaining-balance");
-const exportBtn = document.getElementById("export-btn");
+const editBalanceBtn = document.getElementById("edit-balance-btn");
+const saveBalanceBtn = document.getElementById("save-balance-btn");
+const bankBalanceInput = document.getElementById("bank-balance");
 
-function updateBalanceDisplay() {
-  inlineBalance.textContent = `$${totalBalance.toFixed(2)}`;
-  currentBalanceText.textContent = `$${totalBalance.toFixed(2)}`;
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const remaining = totalBalance - totalExpenses;
-  remainingBalance.textContent = `Remaining Balance: $${remaining.toFixed(2)}`;
-}
+function init() {
+  categories.sort().forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    categorySelect.appendChild(option);
 
-function updateChart() {
-  chartPanel.innerHTML = "";
-  const categorySums = {};
-  expenses.forEach(e => {
-    categorySums[e.category] = (categorySums[e.category] || 0) + e.amount;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.placeholder = `Budget for ${cat}`;
+    input.dataset.category = cat;
+    budgetSettings.appendChild(input);
+
+    budgets[cat] = 0;
   });
-
-  for (const category in categorySums) {
-    const div = document.createElement("div");
-    div.className = "chart-segment";
-    div.textContent = `${category}: $${categorySums[category].toFixed(2)}`;
-    chartPanel.appendChild(div);
-  }
+  updateBalances();
 }
-
-function renderExpenses() {
-  expenseList.innerHTML = "";
-  expenses.forEach((expense, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${expense.name} - $${expense.amount.toFixed(2)} (${expense.category})`;
-    const btn = document.createElement("button");
-    btn.textContent = "×";
-    btn.onclick = () => {
-      expenses.splice(index, 1);
-      renderExpenses();
-      updateChart();
-      updateBalanceDisplay();
-    };
-    li.appendChild(btn);
-    expenseList.appendChild(li);
-  });
-}
+init();
 
 expenseForm.addEventListener("submit", e => {
   e.preventDefault();
-  const name = document.getElementById("expense-name").value.trim();
+  const name = document.getElementById("expense-name").value;
   const amount = parseFloat(document.getElementById("expense-amount").value);
-  const category = document.getElementById("expense-category").value;
-  if (!name || isNaN(amount) || !category) return;
-  expenses.push({ name, amount, category });
-  expenseForm.reset();
-  renderExpenses();
-  updateChart();
-  updateBalanceDisplay();
+  const category = categorySelect.value;
+
+  if (name && amount > 0 && category) {
+    expenses.push({ name, amount, category });
+    currentBalance -= amount;
+    renderExpenses();
+    updateChart();
+    updateBudgets();
+    updateBalances();
+    expenseForm.reset();
+  }
 });
 
 depositForm.addEventListener("submit", e => {
   e.preventDefault();
   const deposit = parseFloat(document.getElementById("deposit-amount").value);
-  if (!isNaN(deposit) && deposit > 0) {
-    totalBalance += deposit;
-    updateBalanceDisplay();
+  if (deposit > 0) {
+    currentBalance += deposit;
+    updateBalances();
+    depositForm.reset();
   }
-  depositForm.reset();
-});
-
-saveBalanceBtn.addEventListener("click", () => {
-  const value = parseFloat(bankBalanceInput.value);
-  if (!isNaN(value)) totalBalance = value;
-  balanceEditor.classList.add("hidden");
-  updateBalanceDisplay();
 });
 
 editBalanceBtn.addEventListener("click", () => {
   balanceEditor.classList.toggle("hidden");
 });
 
+saveBalanceBtn.addEventListener("click", () => {
+  const val = parseFloat(bankBalanceInput.value);
+  if (!isNaN(val)) {
+    currentBalance = val;
+    updateBalances();
+    balanceEditor.classList.add("hidden");
+  }
+});
+
+function updateBalances() {
+  inlineBalance.textContent = `$${currentBalance.toFixed(2)}`;
+  currentBalanceText.textContent = `$${currentBalance.toFixed(2)}`;
+  const spent = expenses.reduce((sum, ex) => sum + ex.amount, 0);
+  remainingBalance.textContent = `Remaining Balance: $${(currentBalance).toFixed(2)} | Total Spent: $${spent.toFixed(2)}`;
+}
+
+function renderExpenses() {
+  expenseList.innerHTML = "";
+  expenses.forEach((exp, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `${exp.name} - $${exp.amount.toFixed(2)} [${exp.category}]
+      <button onclick="removeExpense(${index})">X</button>`;
+    expenseList.appendChild(li);
+  });
+}
+
+function removeExpense(index) {
+  currentBalance += expenses[index].amount;
+  expenses.splice(index, 1);
+  renderExpenses();
+  updateChart();
+  updateBudgets();
+  updateBalances();
+}
+
+function updateChart() {
+  chartPanel.innerHTML = "";
+  const totals = {};
+  expenses.forEach(exp => {
+    if (!totals[exp.category]) totals[exp.category] = 0;
+    totals[exp.category] += exp.amount;
+  });
+
+  Object.keys(totals).forEach(cat => {
+    const bar = document.createElement("div");
+    bar.className = "chart-segment";
+    bar.textContent = `${cat}: $${totals[cat].toFixed(2)}`;
+    chartPanel.appendChild(bar);
+  });
+}
+
+function updateBudgets() {
+  document.querySelectorAll("#budget-settings input").forEach(input => {
+    const cat = input.dataset.category;
+    budgets[cat] = parseFloat(input.value) || 0;
+  });
+
+  budgetBars.innerHTML = "";
+  const spentByCat = {};
+  expenses.forEach(exp => {
+    spentByCat[exp.category] = (spentByCat[exp.category] || 0) + exp.amount;
+  });
+
+  Object.entries(budgets).forEach(([cat, limit]) => {
+    if (limit > 0) {
+      const spent = spentByCat[cat] || 0;
+      const percent = Math.min(100, (spent / limit) * 100);
+      const bar = document.createElement("div");
+      bar.className = "bar";
+
+      const fill = document.createElement("div");
+      fill.className = "bar-fill";
+      fill.style.width = percent + "%";
+      fill.classList.add(
+        percent < 70 ? "green" : percent < 100 ? "yellow" : "red"
+      );
+      fill.textContent = `${Math.round(percent)}%`;
+
+      bar.appendChild(fill);
+      budgetBars.appendChild(bar);
+    }
+  });
+}
+
+document.getElementById("export-btn").addEventListener("click", () => {
+  let csv = "Name,Amount,Category\n";
+  expenses.forEach(e => {
+    csv += `${e.name},${e.amount},${e.category}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "expenses.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
     btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
+    const target = btn.dataset.tab;
+    document.querySelectorAll(".tab-content").forEach(tab => {
+      tab.classList.toggle("active", tab.id === target);
+    });
   });
-});
-
-exportBtn.addEventListener("click", () => {
-  const csv = ["Name,Amount,Category"];
-  expenses.forEach(e => csv.push(`${e.name},${e.amount},${e.category}`));
-  const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "expenses.csv";
-  a.click();
 });
