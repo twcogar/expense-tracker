@@ -15,29 +15,40 @@
         <h1>Expense Tracker</h1>
 
         <form id="expense-form">
-            <input type="text" id="name" placeholder="Expense Name" required>
-            <input type="number" id="amount" placeholder="Amount ($)" required step="0.01" min="0">
-            <select id="category" required>
-                <option value="" disabled selected>Select category</option>
-                <option value="Food">Food</option>
-                <option value="Housing">Housing</option>
-                <option value="Utilities">Utilities</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Insurance">Insurance</option>
-                <option value="Loans">Loans</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Education">Education</option>
-                <option value="Personal">Personal</option>
-                <option value="Miscellaneous">Miscellaneous</option>
-            </select>
-            <button type="submit">Add Expense</button>
+            <div class="form-group">
+                <label for="name">Expense Name</label>
+                <input type="text" id="name" placeholder="e.g., Groceries" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount ($)</label>
+                <input type="number" id="amount" placeholder="e.g., 50" required step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="" disabled selected>Select category</option>
+                    <option value="Food">Food</option>
+                    <option value="Housing">Housing</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Loans">Loans</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Education">Education</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Miscellaneous">Miscellaneous</option>
+                </select>
+            </div>
+            <button type="submit" class="primary-btn">Add Expense</button>
         </form>
 
-        <div class="expense-display">
+        <div class="expense-content">
             <ul id="expense-list"></ul>
-            <canvas id="expense-chart"></canvas>
+            <div class="chart-container">
+                <canvas id="expense-chart"></canvas>
+            </div>
         </div>
 
         <button type="button" id="export-btn">Export to Excel</button>
