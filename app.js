@@ -31,13 +31,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
   const depositForm = document.getElementById("deposit-form");
   const balanceInput = document.getElementById("bank-balance");
-  const balanceEditor = document.getElementById("balance-editor");
   const inlineBalanceLabel = document.getElementById("inline-current-balance");
   const expenseList = document.getElementById("expense-list");
   const exportBtn = document.getElementById("export-btn");
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
   const expenseAmountInput = document.getElementById("expense-amount");
+  const analyticsSpent = document.getElementById("total-spent");
+  const analyticsTop = document.getElementById("top-category");
+  const analyticsBurn = document.getElementById("burn-rate");
+  const historySelector = document.getElementById("month-selector");
+  const historySummary = document.getElementById("history-summary");
 
   // INIT: Populate Budget Fields
   const budgetContainer = document.getElementById("budget-container");
@@ -61,27 +65,18 @@ document.addEventListener("DOMContentLoaded", () => {
     expenses.forEach((e) => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
-      li.innerHTML = `
-        <span>${e.name}</span>
-        <span>$${e.amount.toFixed(2)} - ${e.category}</span>
-      `;
+      li.style.borderLeft = `8px solid ${getCategoryColor(e.category)}`;
+      li.innerHTML = `<span>${e.name}</span><span>$${e.amount.toFixed(2)} - ${e.category}</span>`;
       expenseList.appendChild(li);
     });
     updateChart();
     renderBudgetBars();
+    updateAnalytics();
+    updateHistory();
   }
 
   function updateChart() {
-    const ctxId = "expense-chart";
-    let ctx = document.getElementById(ctxId);
-
-    if (!ctx) {
-      const canvas = document.createElement("canvas");
-      canvas.id = ctxId;
-      document.getElementById("chart-panel").appendChild(canvas);
-      ctx = canvas;
-    }
-
+    const ctx = document.getElementById("expense-chart");
     const categoryTotals = {};
     expenses.forEach((e) => {
       categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
@@ -89,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const labels = Object.keys(categoryTotals);
     const data = Object.values(categoryTotals);
-    const colors = labels.map((cat) => getCategoryColor(cat));
+    const colors = labels.map(cat => getCategoryColor(cat));
 
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
@@ -112,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderBudgetBars() {
     const container = document.getElementById("budget-management-content");
     if (!container) return;
-
     container.innerHTML = "";
 
     const totals = {};
@@ -147,92 +141,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  expenseForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("expense-name").value.trim();
-    const amountStr = expenseAmountInput.value.replace(/[^0-9.]/g, "");
-    const amount = parseFloat(amountStr);
-    const category = document.getElementById("expense-category").value;
+  function updateAnalytics() {
+    const totals = {};
+    let total = 0;
 
-    if (!name || isNaN(amount) || !category) return;
-
-    expenses.push({ name, amount, category });
-    currentBalance -= amount;
-    updateBalanceDisplay();
-    renderExpenses();
-    checkBudgetStatus();
-    expenseForm.reset();
-  });
-
-  depositForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById("deposit-amount").value);
-    if (!isNaN(amount)) {
-      currentBalance += amount;
-      updateBalanceDisplay();
-    }
-    depositForm.reset();
-  });
-
-  document.getElementById("save-balance-btn").addEventListener("click", () => {
-    const value = parseFloat(balanceInput.value);
-    if (!isNaN(value)) {
-      currentBalance = value;
-      updateBalanceDisplay();
-    }
-    balanceInput.value = "";
-    balanceEditor.classList.add("hidden");
-  });
-
-  exportBtn.addEventListener("click", () => {
-    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
-    const wb = XLSX.utils.book_new();
-    const wsData = [["Name", "Amount", "Category"], ...tableRows];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Basic formatting
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const addr = XLSX.utils.encode_cell({r:0, c:C});
-      if (!ws[addr]) continue;
-      ws[addr].s = {
-        font: { bold: true },
-        fill: { fgColor: { rgb: "DCE6F1" } }
-      };
-    }
-
-    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
-    XLSX.writeFile(wb, "Expenses_Export.xlsx");
-  });
-
-  tabButtons.forEach(btn =>
-    btn.addEventListener("click", () => {
-      tabButtons.forEach(b => b.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
-    })
-  );
-
-  expenseAmountInput.addEventListener("input", () => {
-    const raw = expenseAmountInput.value.replace(/[^0-9.]/g, '');
-    expenseAmountInput.value = raw;
-  });
-
-  document.getElementById("save-budget-btn").addEventListener("click", () => {
-    const inputs = document.querySelectorAll("#budget-container input[type='number']");
-    inputs.forEach(input => {
-      const id = input.id;
-      const cat = id.replace("budget-", "").replace(/-/g, " ");
-      const val = parseFloat(input.value);
-      if (!isNaN(val)) budgets[toTitleCase(cat)] = val;
+    expenses.forEach(e => {
+      totals[e.category] = (totals[e.category] || 0) + e.amount;
+      total += e.amount;
     });
-    checkBudgetStatus();
-    renderBudgetBars();
-  });
+
+    const top = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+    const days = Math.max(1, new Date().getDate());
+    analyticsSpent.textContent = `$${total.toFixed(2)}`;
+    analyticsTop.textContent = top ? `${top[0]} ($${top[1].toFixed(2)})` : "-";
+    analyticsBurn.textContent = `$${(total / days).toFixed(2)}/day`;
+  }
+
+  function updateHistory() {
+    const monthly = {};
+
+    expenses.forEach(e => {
+      const month = new Date().toLocaleString('default', { month: 'long' });
+      if (!monthly[month]) monthly[month] = [];
+      monthly[month].push(e);
+    });
+
+    historySelector.innerHTML = `<option disabled selected>Select Month</option>`;
+    Object.keys(monthly).forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      historySelector.appendChild(opt);
+    });
+
+    historySelector.onchange = () => {
+      const selected = historySelector.value;
+      const list = monthly[selected] || [];
+      const total = list.reduce((acc, e) => acc + e.amount, 0);
+      historySummary.innerHTML = `
+        <p><strong>Total Expenses:</strong> $${total.toFixed(2)}</p>
+        <ul>${list.map(e => `<li>${e.name} - $${e.amount.toFixed(2)} (${e.category})</li>`).join("")}</ul>
+      `;
+    };
+  }
+
+  function saveState() {
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+    localStorage.setItem("budgets", JSON.stringify(budgets));
+    localStorage.setItem("balance", currentBalance);
+  }
+
+  function loadState() {
+    expenses = JSON.parse(localStorage.getItem("expenses") || "[]");
+    budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+    currentBalance = parseFloat(localStorage.getItem("balance")) || 0;
+  }
 
   function toTitleCase(str) {
-    return str.replace(/\w\S*/g, (txt) =>
+    return str.replace(/\w\S*/g, txt =>
       txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     );
   }
@@ -255,5 +221,88 @@ document.addEventListener("DOMContentLoaded", () => {
     status.style.color = output ? "red" : "green";
   }
 
+  expenseForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("expense-name").value.trim();
+    const amountStr = expenseAmountInput.value.replace(/[^0-9.]/g, "");
+    const amount = parseFloat(amountStr);
+    const category = document.getElementById("expense-category").value;
+
+    if (!name || isNaN(amount) || !category) return;
+
+    expenses.push({ name, amount, category });
+    currentBalance -= amount;
+    updateBalanceDisplay();
+    renderExpenses();
+    checkBudgetStatus();
+    saveState();
+    expenseForm.reset();
+  });
+
+  depositForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById("deposit-amount").value);
+    if (!isNaN(amount)) {
+      currentBalance += amount;
+      updateBalanceDisplay();
+      saveState();
+    }
+    depositForm.reset();
+  });
+
+  document.getElementById("save-balance-btn").addEventListener("click", () => {
+    const value = parseFloat(balanceInput.value);
+    if (!isNaN(value)) {
+      currentBalance = value;
+      updateBalanceDisplay();
+      saveState();
+    }
+    balanceInput.value = "";
+  });
+
+  exportBtn.addEventListener("click", () => {
+    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
+    const wb = XLSX.utils.book_new();
+    const wsData = [["Name", "Amount", "Category"], ...tableRows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+
+    // Insert Chart Image
+    const canvas = document.getElementById("expense-chart");
+    const img = canvas.toDataURL("image/png");
+    const imgSheet = XLSX.utils.aoa_to_sheet([["Expense Chart Below"], [""]]);
+    XLSX.utils.book_append_sheet(wb, imgSheet, "Chart");
+    XLSX.writeFile(wb, "Expenses_Export.xlsx");
+  });
+
+  document.getElementById("save-budget-btn").addEventListener("click", () => {
+    const inputs = document.querySelectorAll("#budget-container input[type='number']");
+    inputs.forEach(input => {
+      const id = input.id;
+      const cat = id.replace("budget-", "").replace(/-/g, " ");
+      const val = parseFloat(input.value);
+      if (!isNaN(val)) budgets[toTitleCase(cat)] = val;
+    });
+    checkBudgetStatus();
+    renderBudgetBars();
+    saveState();
+  });
+
+  tabButtons.forEach(btn =>
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => b.classList.remove("active"));
+      tabContents.forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    })
+  );
+
+  expenseAmountInput.addEventListener("input", () => {
+    const raw = expenseAmountInput.value.replace(/[^0-9.]/g, '');
+    expenseAmountInput.value = raw;
+  });
+
+  loadState();
   updateBalanceDisplay();
+  renderExpenses();
 });
