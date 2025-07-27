@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     expenses.forEach((e) => {
       const li = document.createElement("li");
       li.textContent = `${e.name} - $${e.amount.toFixed(2)} (${e.category})`;
-      const className = `category-${e.category.toLowerCase().replace(/ /g, "-")}`;
-      li.classList.add("expense-item", className);
+      li.classList.add("expense-item");
+      li.setAttribute("data-category", e.category);
       expenseList.appendChild(li);
     });
     updateChart();
@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ctx) {
       const canvas = document.createElement("canvas");
       canvas.id = ctxId;
+      canvas.style.maxWidth = "280px"; // slightly smaller pie chart
       document.getElementById("chart-panel").appendChild(canvas);
       ctx = canvas;
     }
