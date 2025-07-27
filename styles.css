@@ -180,7 +180,8 @@ button:hover {
   min-width: 100px;
 }
 
-.budget-save-btn {
+.budget-save-btn,
+#save-budget-btn {
   padding: 8px 14px;
   font-size: 0.9em;
   background-color: #28a745;
@@ -191,8 +192,39 @@ button:hover {
   transition: 0.2s ease;
 }
 
-.budget-save-btn:hover {
+.budget-save-btn:hover,
+#save-budget-btn:hover {
   background-color: #218838;
+}
+
+/* Budget Management - Tracker bars */
+#budget-visuals {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-bar-container {
+  background-color: #d0e8ff;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 24px;
+  position: relative;
+}
+
+.budget-bar {
+  height: 100%;
+  text-align: right;
+  padding-right: 10px;
+  line-height: 24px;
+  color: white;
+  font-weight: bold;
+}
+
+.budget-label {
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 /* Hide/Show section */
