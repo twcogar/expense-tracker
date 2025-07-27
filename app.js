@@ -1,4 +1,4 @@
-// Full logic preserved from your current version
+// Updated app.js with all Phase 2 enhancements
 let currentBalance = 0;
 let expenses = [];
 let chart;
@@ -12,7 +12,6 @@ const defaultCategories = [
   "Transportation", "Utilities"
 ];
 
-// Assign fixed category colors
 function getCategoryColor(category) {
   if (categoryColors[category]) return categoryColors[category];
   const li = document.createElement("li");
@@ -22,6 +21,11 @@ function getCategoryColor(category) {
   document.body.removeChild(li);
   categoryColors[category] = color;
   return color;
+}
+
+function getGradient(category) {
+  const base = getCategoryColor(category);
+  return `linear-gradient(to bottom, ${base}, #1c75bc)`;
 }
 
 function getRandomColor() {
@@ -66,12 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
     expenses.forEach((e, i) => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
-li.innerHTML = `
-  <div class="expense-name">${e.name}</div>
-  <div class="expense-amount">$${e.amount.toFixed(2)}</div>
-  <div class="expense-category">${e.category}</div>
-  <button class="delete-btn" data-index="${i}" title="Delete">&times;</button>
-`;
+      li.style.setProperty('--gradient-color', getGradient(e.category));
+      li.innerHTML = `
+        <div class="expense-name">${e.name}</div>
+        <div class="expense-amount">$${e.amount.toFixed(2)}</div>
+        <div class="expense-category">${e.category}</div>
+        <button class="delete-btn" data-index="${i}" title="Delete Expense">🗑️</button>
+      `;
       expenseList.appendChild(li);
     });
 
@@ -273,8 +278,6 @@ li.innerHTML = `
 
   exportBtn.addEventListener("click", () => {
     const wb = XLSX.utils.book_new();
-
-    // Sheet 1: Expenses
     const wsData = [["Name", "Amount", "Category", "Date"]];
     expenses.forEach(e => {
       wsData.push([e.name, e.amount, e.category, new Date().toLocaleDateString()]);
@@ -282,16 +285,13 @@ li.innerHTML = `
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
 
-    // Sheet 2: Chart Image Placeholder
     const canvas = document.getElementById("expense-chart");
-    const imgSheet = XLSX.utils.aoa_to_sheet([["Expense Chart Embedded"]]);
-    if (canvas) {
-      const img = canvas.toDataURL("image/png");
-      imgSheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 20, c: 8 } }];
-    }
+    const imgSheet = XLSX.utils.aoa_to_sheet([
+      ["Note: Excel export does not embed image directly via JavaScript."],
+      ["Recommendation: Use screenshot or insert manually."]
+    ]);
     XLSX.utils.book_append_sheet(wb, imgSheet, "Chart");
 
-    // Export file
     const fileName = `Expenses_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
   });
