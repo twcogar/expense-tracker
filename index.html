@@ -3,101 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Expense Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Expense & Budget Tracker</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>Personal Expense Tracker</h1>
-    <p>Balance: <span id="inline-current-balance">$0.00</span></p>
+    <h1>Expense & Budget Tracker</h1>
+    <p>Track your expenses, set budgets, and visualize spending</p>
   </header>
 
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="expenses-tab">Expenses</button>
-    <button class="tab-btn" data-tab="deposits-tab">Deposits</button>
-    <button class="tab-btn" data-tab="edit-balance-tab">Edit Balance</button>
-    <button class="tab-btn" data-tab="set-budgets-tab">Set Budgets</button>
-  </nav>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="expense-tab">Expenses</button>
+    <button class="tab-btn" data-tab="deposit-tab">Deposits</button>
+    <button class="tab-btn" data-tab="balance-tab">Edit Balance</button>
+    <button class="tab-btn" data-tab="budget-tab">Set Budgets</button>
+  </div>
 
-  <main>
-    <section id="expenses-tab" class="tab-content active">
-      <h2>Add Expense</h2>
-      <form id="expense-form">
-        <input type="text" id="expense-name" placeholder="Expense Name" required />
-        <input type="number" id="expense-amount" placeholder="Amount (e.g. 25.50)" step="0.01" required />
-        <select id="expense-category" required>
-          <option value="">Select Category</option>
-          <option>Auto</option>
-          <option>Clothing</option>
-          <option>Credit Card</option>
-          <option>Dining</option>
-          <option>Entertainment</option>
-          <option>Groceries</option>
-          <option>Insurance</option>
-          <option>Internet</option>
-          <option>Loan</option>
-          <option>Medical</option>
-          <option>Other</option>
-          <option>Pet Care</option>
-          <option>Phone</option>
-          <option>Rent</option>
-          <option>Subscriptions</option>
-          <option>Transportation</option>
-          <option>Utilities</option>
-        </select>
-        <button type="submit">Add Expense</button>
-      </form>
-      <ul id="expense-list"></ul>
-      <div id="chart-panel">
-        <canvas id="expense-chart" width="400" height="400"></canvas>
-      </div>
-      <button id="export-btn">Export to Excel</button>
-    </section>
+  <!-- Expenses Tab -->
+  <div id="expense-tab" class="tab-content active">
+    <h2>Track Your Expenses</h2>
+    <form id="expense-form">
+      <input type="text" id="expense-name" placeholder="Expense Name" required/>
+      <input type="text" id="expense-amount" placeholder="$0.00" required/>
+      <select id="expense-category" required>
+        <option value="">Select Category</option>
+        <option value="Auto">Auto</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Dining">Dining</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Internet">Internet</option>
+        <option value="Loan">Loan</option>
+        <option value="Medical">Medical</option>
+        <option value="Other">Other</option>
+        <option value="Pet Care">Pet Care</option>
+        <option value="Phone">Phone</option>
+        <option value="Rent">Rent</option>
+        <option value="Subscriptions">Subscriptions</option>
+        <option value="Transportation">Transportation</option>
+        <option value="Utilities">Utilities</option>
+      </select>
+      <button type="submit">Add Expense</button>
+    </form>
+    <div><strong>Balance:</strong> <span id="inline-current-balance">$0.00</span></div>
+    <ul id="expense-list"></ul>
+    <div id="chart-panel"></div>
+    <button id="export-btn">Export to Excel</button>
+  </div>
 
-    <section id="deposits-tab" class="tab-content">
-      <h2>Add Deposit</h2>
-      <form id="deposit-form">
-        <input type="number" id="deposit-amount" placeholder="Deposit Amount" step="0.01" required />
-        <button type="submit">Add Deposit</button>
-      </form>
-    </section>
+  <!-- Deposits Tab -->
+  <div id="deposit-tab" class="tab-content">
+    <h2>Deposit Funds</h2>
+    <form id="deposit-form">
+      <input type="number" id="deposit-amount" placeholder="Amount" required/>
+      <button type="submit">Add Deposit</button>
+    </form>
+  </div>
 
-    <section id="edit-balance-tab" class="tab-content">
-      <h2>Edit Starting Balance</h2>
-      <div>
-        <input type="number" id="bank-balance" placeholder="New Starting Balance" step="0.01" />
-        <button id="save-balance-btn">Save Balance</button>
-      </div>
-    </section>
+  <!-- Balance Editor Tab -->
+  <div id="balance-tab" class="tab-content">
+    <h2>Edit Starting Balance</h2>
+    <button id="edit-balance-btn">Edit Balance</button>
+    <div id="balance-editor" class="hidden">
+      <input type="number" id="bank-balance" placeholder="Enter new balance"/>
+      <button id="save-balance-btn">Save Balance</button>
+    </div>
+  </div>
 
-    <section id="set-budgets-tab" class="tab-content">
-      <h2>Set Budget Limits</h2>
-      <form id="budget-form">
-        <div class="budget-row"><label>Auto: $</label><input type="number" id="budget-auto" step="0.01" /></div>
-        <div class="budget-row"><label>Clothing: $</label><input type="number" id="budget-clothing" step="0.01" /></div>
-        <div class="budget-row"><label>Credit Card: $</label><input type="number" id="budget-credit-card" step="0.01" /></div>
-        <div class="budget-row"><label>Dining: $</label><input type="number" id="budget-dining" step="0.01" /></div>
-        <div class="budget-row"><label>Entertainment: $</label><input type="number" id="budget-entertainment" step="0.01" /></div>
-        <div class="budget-row"><label>Groceries: $</label><input type="number" id="budget-groceries" step="0.01" /></div>
-        <div class="budget-row"><label>Insurance: $</label><input type="number" id="budget-insurance" step="0.01" /></div>
-        <div class="budget-row"><label>Internet: $</label><input type="number" id="budget-internet" step="0.01" /></div>
-        <div class="budget-row"><label>Loan: $</label><input type="number" id="budget-loan" step="0.01" /></div>
-        <div class="budget-row"><label>Medical: $</label><input type="number" id="budget-medical" step="0.01" /></div>
-        <div class="budget-row"><label>Other: $</label><input type="number" id="budget-other" step="0.01" /></div>
-        <div class="budget-row"><label>Pet Care: $</label><input type="number" id="budget-pet-care" step="0.01" /></div>
-        <div class="budget-row"><label>Phone: $</label><input type="number" id="budget-phone" step="0.01" /></div>
-        <div class="budget-row"><label>Rent: $</label><input type="number" id="budget-rent" step="0.01" /></div>
-        <div class="budget-row"><label>Subscriptions: $</label><input type="number" id="budget-subscriptions" step="0.01" /></div>
-        <div class="budget-row"><label>Transportation: $</label><input type="number" id="budget-transportation" step="0.01" /></div>
-        <div class="budget-row"><label>Utilities: $</label><input type="number" id="budget-utilities" step="0.01" /></div>
-        <button type="submit">Save Budgets</button>
-      </form>
-      <div id="budget-status"></div>
-    </section>
-  </main>
+  <!-- Budget Tab -->
+  <div id="budget-tab" class="tab-content">
+    <h2>Set Budget Goals</h2>
+    <div id="budget-settings">
+      <div class="budget-row"><label for="budget-auto">Auto</label><input type="number" id="budget-auto" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-clothing">Clothing</label><input type="number" id="budget-clothing" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-credit-card">Credit Card</label><input type="number" id="budget-credit-card" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-dining">Dining</label><input type="number" id="budget-dining" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-entertainment">Entertainment</label><input type="number" id="budget-entertainment" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-groceries">Groceries</label><input type="number" id="budget-groceries" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-insurance">Insurance</label><input type="number" id="budget-insurance" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-internet">Internet</label><input type="number" id="budget-internet" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-loan">Loan</label><input type="number" id="budget-loan" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-medical">Medical</label><input type="number" id="budget-medical" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-other">Other</label><input type="number" id="budget-other" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-pet-care">Pet Care</label><input type="number" id="budget-pet-care" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-phone">Phone</label><input type="number" id="budget-phone" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-rent">Rent</label><input type="number" id="budget-rent" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-subscriptions">Subscriptions</label><input type="number" id="budget-subscriptions" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-transportation">Transportation</label><input type="number" id="budget-transportation" step="0.01" /></div>
+      <div class="budget-row"><label for="budget-utilities">Utilities</label><input type="number" id="budget-utilities" step="0.01" /></div>
+    </div>
+    <div id="budget-status"></div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
