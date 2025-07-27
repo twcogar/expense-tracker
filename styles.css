@@ -7,7 +7,7 @@
 }
 
 body {
-  background-color: #eaf6ff; /* lighter blue pastel background */
+  background-color: #eaf6ff; /* lighter sky blue */
   color: #333;
   padding: 20px;
   max-width: 900px;
@@ -108,12 +108,6 @@ input, select, button {
   font-size: 1em;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 button {
   background-color: #1c75bc;
   color: white;
@@ -180,8 +174,7 @@ button:hover {
   min-width: 100px;
 }
 
-.budget-save-btn,
-#save-budget-btn {
+.budget-save-btn, #save-budget-btn {
   padding: 8px 14px;
   font-size: 0.9em;
   background-color: #28a745;
@@ -190,41 +183,11 @@ button:hover {
   border-radius: 6px;
   cursor: pointer;
   transition: 0.2s ease;
+  margin-top: 10px;
 }
 
-.budget-save-btn:hover,
-#save-budget-btn:hover {
+.budget-save-btn:hover, #save-budget-btn:hover {
   background-color: #218838;
-}
-
-/* Budget Management - Tracker bars */
-#budget-visuals {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.budget-bar-container {
-  background-color: #d0e8ff;
-  border-radius: 8px;
-  overflow: hidden;
-  height: 24px;
-  position: relative;
-}
-
-.budget-bar {
-  height: 100%;
-  text-align: right;
-  padding-right: 10px;
-  line-height: 24px;
-  color: white;
-  font-weight: bold;
-}
-
-.budget-label {
-  margin-bottom: 4px;
-  font-weight: 600;
 }
 
 /* Hide/Show section */
@@ -259,10 +222,31 @@ li[data-category="Auto"] { border-left-color: #009688; }
 li[data-category="Pet Care"] { border-left-color: #ff7043; }
 li[data-category="Other"] { border-left-color: #9e9e9e; }
 
+/* Budget Management bars */
+.budget-bar-wrapper {
+  margin-bottom: 20px;
+}
+
+.budget-bar-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.budget-bar-container {
+  background-color: #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 20px;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
 /* Budget status and export */
 #budget-status {
   margin-top: 10px;
-  color: green;
   font-weight: bold;
 }
 
