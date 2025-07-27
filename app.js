@@ -146,17 +146,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Budget handling
-  document.querySelectorAll(".budget-save-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const row = btn.closest(".budget-row");
-      const category = row.querySelector(".budget-category").value;
-      const amount = parseFloat(row.querySelector(".budget-amount").value);
-      if (category && !isNaN(amount)) {
-        budgets[category] = amount;
-        checkBudgetStatus();
+  // Budget handling - map from static rows using IDs
+  document.getElementById("save-budget-btn").addEventListener("click", () => {
+    const rows = document.querySelectorAll("#budget-container .budget-row");
+    rows.forEach((row) => {
+      const label = row.querySelector("label");
+      const input = row.querySelector("input");
+      if (label && input) {
+        const category = label.textContent.trim();
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) {
+          budgets[category] = value;
+        }
       }
     });
+    checkBudgetStatus();
   });
 
   function checkBudgetStatus() {
@@ -168,8 +172,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     for (const [cat, limit] of Object.entries(budgets)) {
-      if (totals[cat] > limit) {
-        output += `⚠ Over budget in ${cat} by $${(totals[cat] - limit).toFixed(2)}\n`;
+      const total = totals[cat] || 0;
+      if (total > limit) {
+        output += `⚠ Over budget in ${cat} by $${(total - limit).toFixed(2)}\n`;
       }
     }
 
