@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
   const expenseAmountInput = document.getElementById("expense-amount");
+  const budgetStatus = document.getElementById("budget-status");
+  const budgetVisuals = document.getElementById("budget-visuals");
 
   function updateBalanceDisplay() {
     inlineBalanceLabel.textContent = `$${currentBalance.toFixed(2)}`;
@@ -32,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
       expenseList.appendChild(li);
     });
     updateChart();
+    renderBudgetBars();
   }
 
   function updateChart() {
@@ -86,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   expenseForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const name = document.getElementById("expense-name").value.trim();
-    const amountStr = expenseAmountInput.value.replace(/[^0-9.-]+/g, "");
+    const amountStr = expenseAmountInput.value.replace(/[^0-9.-]/g, "");
     const amount = parseFloat(amountStr);
     const category = document.getElementById("expense-category").value;
 
@@ -139,48 +142,68 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   expenseAmountInput.addEventListener("input", () => {
-    let val = expenseAmountInput.value.replace(/[^\d.]/g, '');
-    if (val) {
-      val = parseFloat(val).toFixed(2);
-      expenseAmountInput.value = `$${val}`;
-    }
+    // Remove currency formatting interference; allow free input
+    const cleaned = expenseAmountInput.value.replace(/[^\d.-]/g, '');
+    expenseAmountInput.value = cleaned;
   });
 
-  // Budget handling - map from static rows using IDs
   document.getElementById("save-budget-btn").addEventListener("click", () => {
-    const rows = document.querySelectorAll("#budget-container .budget-row");
-    rows.forEach((row) => {
-      const label = row.querySelector("label");
+    const inputs = document.querySelectorAll("#budget-tab .budget-row");
+    inputs.forEach(row => {
+      const label = row.querySelector("label").textContent.trim();
       const input = row.querySelector("input");
-      if (label && input) {
-        const category = label.textContent.trim();
-        const value = parseFloat(input.value);
-        if (!isNaN(value)) {
-          budgets[category] = value;
-        }
-      }
+      const amount = parseFloat(input.value);
+      if (!isNaN(amount)) budgets[label] = amount;
     });
     checkBudgetStatus();
+    renderBudgetBars();
   });
 
   function checkBudgetStatus() {
-    let output = "";
     const totals = {};
-
     expenses.forEach(e => {
       totals[e.category] = (totals[e.category] || 0) + e.amount;
     });
 
+    let output = "";
     for (const [cat, limit] of Object.entries(budgets)) {
-      const total = totals[cat] || 0;
-      if (total > limit) {
-        output += `⚠ Over budget in ${cat} by $${(total - limit).toFixed(2)}\n`;
+      if (totals[cat] > limit) {
+        output += `⚠ Over budget in ${cat} by $${(totals[cat] - limit).toFixed(2)}\n`;
       }
     }
 
-    const status = document.getElementById("budget-status");
-    status.textContent = output.trim() || "✅ All categories within budget.";
-    status.style.color = output ? "red" : "green";
+    budgetStatus.textContent = output.trim() || "✅ All categories within budget.";
+    budgetStatus.style.color = output ? "red" : "green";
+  }
+
+  function renderBudgetBars() {
+    if (!budgetVisuals) return;
+    budgetVisuals.innerHTML = "";
+
+    const totals = {};
+    expenses.forEach(e => {
+      totals[e.category] = (totals[e.category] || 0) + e.amount;
+    });
+
+    Object.entries(budgets).sort().forEach(([category, limit]) => {
+      const used = totals[category] || 0;
+      const percent = Math.min((used / limit) * 100, 100);
+
+      const tempLi = document.createElement("li");
+      tempLi.setAttribute("data-category", category);
+      document.body.appendChild(tempLi);
+      const barColor = getComputedStyle(tempLi).borderLeftColor;
+      document.body.removeChild(tempLi);
+
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <div class="budget-label">${category} - $${used.toFixed(2)} / $${limit.toFixed(2)}</div>
+        <div class="budget-bar-container">
+          <div class="budget-bar" style="width: ${percent}%; background-color: ${barColor}">${Math.round(percent)}%</div>
+        </div>
+      `;
+      budgetVisuals.appendChild(wrapper);
+    });
   }
 
   updateBalanceDisplay();
