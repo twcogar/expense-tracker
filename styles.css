@@ -1,7 +1,8 @@
+/* Light Theme CSS */
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  background: #f0f4f8;
+  background: #f5f9fc;
   color: #222;
 }
 
@@ -74,6 +75,7 @@ form input, form select {
   min-width: 150px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background: #fff;
 }
 
 form button {
