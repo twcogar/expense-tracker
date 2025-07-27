@@ -12,6 +12,9 @@
   <header>
     <h1>Budget & Expense Tracker</h1>
     <p>Track your expenses, set budgets, and view balance.</p>
+    <div class="balance-display">
+      <strong>Balance:</strong> <span id="inline-current-balance">$0.00</span>
+    </div>
   </header>
 
   <div class="tabs">
@@ -23,7 +26,6 @@
 
   <div id="expenses-tab" class="tab-content active">
     <h2>Expense Tracker</h2>
-    <p><strong>Balance:</strong> <span id="inline-current-balance">$0.00</span></p>
     <form id="expense-form">
       <input type="text" id="expense-name" placeholder="Expense Name" required />
       <input type="text" id="expense-amount" placeholder="$0.00" required />
@@ -50,7 +52,9 @@
       <button type="submit">Add Expense</button>
     </form>
     <ul id="expense-list"></ul>
-    <div id="chart-panel"></div>
+    <div id="chart-panel">
+      <canvas id="expense-chart"></canvas>
+    </div>
     <button id="export-btn">Export to Excel</button>
   </div>
 
