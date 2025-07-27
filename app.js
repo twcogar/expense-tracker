@@ -5,7 +5,7 @@ const categorySelect = document.getElementById('category');
 const list = document.getElementById('expense-list');
 const ctx = document.getElementById('expense-chart').getContext('2d');
 
-// Elements related to bank balance editing
+// Balance editing elements
 const balanceDisplay = document.getElementById('balance-display');
 const balanceEditor = document.getElementById('balance-editor');
 const currentBalanceText = document.getElementById('current-balance-text');
@@ -14,11 +14,26 @@ const saveBalanceBtn = document.getElementById('save-balance-btn');
 const bankBalanceInput = document.getElementById('bank-balance');
 const remainingBalanceSpan = document.getElementById('remaining-balance');
 
-// Load existing data from localStorage
+// Budget elements
+const toggleBudgetPanelBtn = document.getElementById('toggle-budget-panel');
+const budgetPanel = document.getElementById('budget-panel');
+const budgetInputsDiv = document.getElementById('budget-inputs');
+const saveBudgetsBtn = document.getElementById('save-budgets-btn');
+const budgetProgressContainer = document.getElementById('budget-progress-container');
+
+// Categories list (ensure it matches the select options)
+const categoriesList = [
+    'Food', 'Housing', 'Utilities', 'Transportation', 'Entertainment',
+    'Healthcare', 'Insurance', 'Loans', 'Credit Card',
+    'Education', 'Personal', 'Miscellaneous'
+];
+
+// Load data from localStorage
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 let bankBalance = parseFloat(localStorage.getItem('bankBalance')) || 0;
+let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
 
-// Initialize the pie chart
+// Initialize Chart.js pie chart
 let chart = new Chart(ctx, {
     type: 'pie',
     data: {
@@ -33,18 +48,16 @@ let chart = new Chart(ctx, {
     },
     options: {
         responsive: true,
-        plugins: {
-            legend: { position: 'bottom' }
-        }
+        plugins: { legend: { position: 'bottom' } }
     }
 });
 
-// Format numbers as US dollars
+// Currency formatter
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 }
 
-// Show or hide balance display/editor
+// Show/hide balance display/editor
 function showBalanceDisplay() {
     currentBalanceText.textContent = `Current Balance: ${formatCurrency(bankBalance)}`;
     balanceDisplay.classList.remove('hidden');
@@ -56,14 +69,14 @@ function showBalanceEditor() {
     balanceEditor.classList.remove('hidden');
 }
 
-// On initial load, decide whether to show display or editor
+// On initial load, show either display or editor depending on whether a balance exists
 if (bankBalance === 0) {
     showBalanceEditor();
 } else {
     showBalanceDisplay();
 }
 
-// Update the chart based on expenses
+// Update the pie chart data
 function updateChart() {
     const categories = {};
     expenses.forEach(({ category, amount }) => {
@@ -83,7 +96,7 @@ function updateRemainingBalance() {
     remainingBalanceSpan.classList.add(remaining >= 0 ? 'positive' : 'negative');
 }
 
-// Render the list with delete buttons
+// Render the expense list with delete buttons
 function renderList() {
     list.innerHTML = '';
     expenses.forEach(({ name, amount, category }, index) => {
@@ -98,11 +111,96 @@ function renderList() {
             renderList();
             updateChart();
             updateRemainingBalance();
+            updateProgressBars();
         });
         li.appendChild(deleteBtn);
         list.appendChild(li);
     });
 }
+
+// Generate budget input fields based on the categories
+function generateBudgetInputs() {
+    budgetInputsDiv.innerHTML = '';
+    categoriesList.forEach(cat => {
+        const group = document.createElement('div');
+        group.className = 'budget-input-group';
+        const label = document.createElement('label');
+        label.textContent = cat;
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.step = '0.01';
+        input.dataset.category = cat;
+        input.value = budgets[cat] !== undefined ? budgets[cat] : '';
+        group.appendChild(label);
+        group.appendChild(input);
+        budgetInputsDiv.appendChild(group);
+    });
+}
+
+// Update progress bars based on current expenses and budgets
+function updateProgressBars() {
+    budgetProgressContainer.innerHTML = '';
+    categoriesList.forEach(cat => {
+        const budgetValue = parseFloat(budgets[cat]);
+        if (budgetValue > 0) {
+            const spent = expenses
+                .filter(exp => exp.category === cat)
+                .reduce((sum, exp) => sum + exp.amount, 0);
+            const ratio = spent / budgetValue;
+            // Create progress bar elements
+            const barDiv = document.createElement('div');
+            barDiv.className = 'progress-bar';
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'progress-label';
+            labelDiv.innerHTML = `<span>${cat}</span><span>${formatCurrency(spent)} / ${formatCurrency(budgetValue)}</span>`;
+            const progress = document.createElement('div');
+            progress.className = 'progress';
+            const fill = document.createElement('div');
+            fill.className = 'progress-fill';
+            fill.style.width = `${Math.min(ratio * 100, 100)}%`;
+            // Colour based on ratio
+            if (ratio < 0.7) {
+                fill.style.backgroundColor = '#28a745'; // green
+            } else if (ratio <= 1) {
+                fill.style.backgroundColor = '#ffc107'; // yellow
+            } else {
+                fill.style.backgroundColor = '#dc3545'; // red
+            }
+            progress.appendChild(fill);
+            barDiv.appendChild(labelDiv);
+            barDiv.appendChild(progress);
+            budgetProgressContainer.appendChild(barDiv);
+        }
+    });
+}
+
+// Toggle the budget panel
+toggleBudgetPanelBtn.addEventListener('click', () => {
+    if (budgetPanel.classList.contains('hidden')) {
+        generateBudgetInputs();
+        budgetPanel.classList.remove('hidden');
+    } else {
+        budgetPanel.classList.add('hidden');
+    }
+});
+
+// Save budgets and update progress bars
+saveBudgetsBtn.addEventListener('click', () => {
+    const inputs = budgetInputsDiv.querySelectorAll('input');
+    inputs.forEach(input => {
+        const category = input.dataset.category;
+        const value = parseFloat(input.value);
+        if (!isNaN(value) && value > 0) {
+            budgets[category] = value;
+        } else {
+            delete budgets[category];
+        }
+    });
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+    updateProgressBars();
+    budgetPanel.classList.add('hidden');
+});
 
 // Handle adding a new expense
 form.addEventListener('submit', (e) => {
@@ -110,36 +208,35 @@ form.addEventListener('submit', (e) => {
     const name = nameInput.value.trim();
     const amount = parseFloat(amountInput.value);
     const category = categorySelect.value;
-    if (!name || isNaN(amount) || !category) {
-        return;
-    }
+    if (!name || isNaN(amount) || !category) return;
     expenses.push({ name, amount, category });
     localStorage.setItem('expenses', JSON.stringify(expenses));
     renderList();
     updateChart();
     updateRemainingBalance();
+    updateProgressBars();
     form.reset();
     categorySelect.selectedIndex = 0;
 });
 
-// Event handlers for editing and saving balance
-editBalanceBtn.addEventListener('click', () => {
-    showBalanceEditor();
-});
+// Edit and save bank balance
+editBalanceBtn.addEventListener('click', showBalanceEditor);
 saveBalanceBtn.addEventListener('click', () => {
     const value = parseFloat(bankBalanceInput.value);
     bankBalance = isNaN(value) ? 0 : value;
     localStorage.setItem('bankBalance', bankBalance);
     updateRemainingBalance();
     showBalanceDisplay();
+    updateProgressBars();
 });
 
 // Initial render
 renderList();
 updateChart();
 updateRemainingBalance();
+updateProgressBars();
 
-// Export to Excel using ExcelJS
+// Excel export
 async function exportToExcel() {
     if (expenses.length === 0) {
         alert('No expenses to export.');
@@ -147,7 +244,6 @@ async function exportToExcel() {
     }
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Expense Tracker';
-    // Sheet with raw data
     const sheet = workbook.addWorksheet('Expenses');
     sheet.columns = [
         { header: 'Name', key: 'name', width: 30 },
@@ -158,6 +254,7 @@ async function exportToExcel() {
         sheet.addRow({ name: exp.name, amount: exp.amount, category: exp.category });
     });
     sheet.getColumn('amount').numFmt = '$0.00';
+
     // Summary sheet
     const summarySheet = workbook.addWorksheet('Summary');
     summarySheet.columns = [
@@ -168,18 +265,22 @@ async function exportToExcel() {
     expenses.forEach(exp => {
         totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
     });
-    Object.entries(totals).forEach(([category, total]) => {
-        summarySheet.addRow({ category, total });
+    Object.entries(totals).forEach(([cat, total]) => {
+        summarySheet.addRow({ category: cat, total });
     });
     summarySheet.getColumn('total').numFmt = '$0.00';
-    // Embed chart image
+
+    // Embed the pie chart
     const chartDataURL = chart.toBase64Image();
-    const imageId = workbook.addImage({ base64: chartDataURL, extension: 'png' });
+    const imageId = workbook.addImage({
+        base64: chartDataURL,
+        extension: 'png'
+    });
     summarySheet.addImage(imageId, {
         tl: { col: 0, row: 4 },
         ext: { width: 500, height: 300 }
     });
-    // Create and download the file
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
