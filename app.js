@@ -6,7 +6,14 @@ const categories = [
   "Medical", "Other", "Rent", "Subscriptions", "Transport", "Utilities"
 ];
 
-// Populate category dropdown and budget input fields
+// Assign unique colors to categories
+const categoryColors = {};
+const colorPalette = [
+  "#6c5ce7", "#00b894", "#fd79a8", "#e17055", "#0984e3", "#fab1a0",
+  "#00cec9", "#fdcb6e", "#d63031", "#636e72", "#2d3436", "#a29bfe"
+];
+categories.forEach((cat, i) => categoryColors[cat] = colorPalette[i % colorPalette.length]);
+
 function populateCategories() {
   const expenseCategory = document.getElementById("expense-category");
   const budgetSettings = document.getElementById("budget-settings");
@@ -18,7 +25,6 @@ function populateCategories() {
     option.textContent = category;
     expenseCategory.appendChild(option);
 
-    // Create budget setting row
     const budgetRow = document.createElement("div");
     budgetRow.innerHTML = `
       <label>${category} Budget: </label>
@@ -28,7 +34,6 @@ function populateCategories() {
   });
 }
 
-// Update chart display
 function updateChart() {
   const chartPanel = document.getElementById("chart-panel");
   chartPanel.innerHTML = "";
@@ -44,19 +49,18 @@ function updateChart() {
   Object.entries(totals).forEach(([category, amount]) => {
     const percent = ((amount / totalSpent) * 100).toFixed(1);
     const div = document.createElement("div");
+    div.className = "chart-segment";
+    div.style.backgroundColor = categoryColors[category];
     div.textContent = `${category}: $${amount.toFixed(2)} (${percent}%)`;
-    div.style.padding = "4px";
     chartPanel.appendChild(div);
   });
 }
 
-// Update balance text in multiple places
 function updateBalanceDisplay() {
   document.getElementById("current-balance-text").textContent = `$${currentBalance.toFixed(2)}`;
   document.getElementById("inline-current-balance").textContent = `$${currentBalance.toFixed(2)}`;
 }
 
-// Switch tabs
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -66,14 +70,13 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-// Handle expense submission
 document.getElementById("expense-form").addEventListener("submit", e => {
   e.preventDefault();
   const name = document.getElementById("expense-name").value;
   const amount = parseFloat(document.getElementById("expense-amount").value);
   const category = document.getElementById("expense-category").value;
 
-  if (!name || !amount || !category || isNaN(amount)) return;
+  if (!name || isNaN(amount) || !category) return;
 
   expenses.push({ name, amount, category });
   currentBalance -= amount;
@@ -87,7 +90,6 @@ document.getElementById("expense-form").addEventListener("submit", e => {
   e.target.reset();
 });
 
-// Handle deposit
 document.getElementById("deposit-form").addEventListener("submit", e => {
   e.preventDefault();
   const deposit = parseFloat(document.getElementById("deposit-amount").value);
@@ -98,12 +100,10 @@ document.getElementById("deposit-form").addEventListener("submit", e => {
   }
 });
 
-// Toggle balance editor
 document.getElementById("edit-balance-btn").addEventListener("click", () => {
   document.getElementById("balance-editor").classList.toggle("hidden");
 });
 
-// Save balance update
 document.getElementById("save-balance-btn").addEventListener("click", () => {
   const newBalance = parseFloat(document.getElementById("bank-balance").value);
   if (!isNaN(newBalance)) {
@@ -114,7 +114,6 @@ document.getElementById("save-balance-btn").addEventListener("click", () => {
   }
 });
 
-// Export to CSV
 document.getElementById("export-btn").addEventListener("click", () => {
   let csv = "Name,Amount,Category\n";
   expenses.forEach(exp => {
@@ -128,6 +127,5 @@ document.getElementById("export-btn").addEventListener("click", () => {
   a.click();
 });
 
-// Initialize
 populateCategories();
 updateBalanceDisplay();
