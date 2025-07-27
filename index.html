@@ -2,75 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Expense Tracker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>Expense Tracker</h1>
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="expenses">Expenses</button>
-      <button class="tab-btn" data-tab="budgets">Set Budgets</button>
-      <button class="tab-btn" data-tab="balance">Edit Balance</button>
-      <button class="tab-btn" data-tab="deposits">Deposits</button>
-    </nav>
   </header>
-
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="expenses">Expenses</button>
+    <button class="tab-btn" data-tab="deposits">Deposits</button>
+    <button class="tab-btn" data-tab="set-budgets">Set Budgets</button>
+    <button class="tab-btn" data-tab="edit-balance">Edit Balance</button>
+  </div>
   <main>
     <section id="expenses" class="tab-content active">
+      <h2>Track Expenses</h2>
+      <div class="balance-inline">Current Balance: <span id="inline-current-balance">$0.00</span></div>
       <form id="expense-form">
         <input type="text" id="expense-name" placeholder="Expense Name" required />
-        <input type="number" id="expense-amount" placeholder="Amount ($)" step="0.01" required />
-        <select id="expense-category" required>
-          <option value="">Select Category</option>
-          <option value="Credit Card">Credit Card</option>
-          <option value="Entertainment">Entertainment</option>
-          <option value="Food">Food</option>
-          <option value="Insurance">Insurance</option>
-          <option value="Loans">Loans</option>
-          <option value="Other">Other</option>
-          <option value="Rent">Rent</option>
-          <option value="Transportation">Transportation</option>
-          <option value="Utilities">Utilities</option>
-        </select>
+        <input type="number" id="expense-amount" placeholder="Amount ($)" required />
+        <select id="expense-category" required></select>
         <button type="submit">Add Expense</button>
       </form>
-      <div class="balance-inline">Current Balance: <span id="inline-current-balance">$0.00</span></div>
       <ul id="expense-list"></ul>
       <div id="chart-panel" class="chart-panel"></div>
-      <button id="export-btn">Export to Excel</button>
-    </section>
-
-    <section id="budgets" class="tab-content">
-      <h2>Set Budgets</h2>
-      <div id="budget-settings"></div>
-      <button id="save-budgets-btn">Save Budgets</button>
-      <div id="budget-bars"></div>
-    </section>
-
-    <section id="balance" class="tab-content">
-      <h2>Current Balance</h2>
-      <div id="balance-display">
-        <span id="current-balance-text">Not Set</span>
-        <button id="edit-balance-btn">Edit</button>
-      </div>
-      <div id="balance-editor" class="hidden">
-        <input type="number" id="bank-balance" placeholder="Enter Balance" step="0.01" />
-        <button id="save-balance-btn">Save</button>
-      </div>
-      <span id="remaining-balance">Remaining Balance: $0.00</span>
+      <div id="remaining-balance"></div>
+      <button id="export-btn">Export to CSV</button>
     </section>
 
     <section id="deposits" class="tab-content">
-      <h2>Add Deposit</h2>
+      <h2>Make a Deposit</h2>
       <form id="deposit-form">
-        <input type="number" id="deposit-amount" placeholder="Deposit Amount ($)" step="0.01" required />
+        <input type="number" id="deposit-amount" placeholder="Deposit Amount ($)" required />
         <button type="submit">Add Deposit</button>
       </form>
     </section>
-  </main>
 
+    <section id="set-budgets" class="tab-content">
+      <h2>Set Category Budgets</h2>
+      <div id="budget-settings"></div>
+      <div id="budget-bars"></div>
+    </section>
+
+    <section id="edit-balance" class="tab-content">
+      <h2>Edit Current Balance</h2>
+      <div id="balance-display">
+        <strong>Current Balance: </strong>
+        <span id="current-balance-text">$0.00</span>
+        <button id="edit-balance-btn">Edit</button>
+      </div>
+      <div id="balance-editor" class="hidden">
+        <input type="number" id="bank-balance" placeholder="Enter New Balance" />
+        <button id="save-balance-btn">Save</button>
+      </div>
+    </section>
+  </main>
   <script src="app.js"></script>
 </body>
 </html>
