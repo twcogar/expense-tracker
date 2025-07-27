@@ -1,138 +1,132 @@
+let currentBalance = 0;
 let expenses = [];
-let balance = 0;
 let chart;
 
-document.addEventListener('DOMContentLoaded', () => {
-  initTabs();
-  initForms();
-  updateBalanceDisplay();
-  renderChart();
-});
+document.addEventListener("DOMContentLoaded", () => {
+  const expenseForm = document.getElementById("expense-form");
+  const expenseList = document.getElementById("expense-list");
+  const depositForm = document.getElementById("deposit-form");
+  const balanceBtn = document.getElementById("edit-balance-btn");
+  const saveBalanceBtn = document.getElementById("save-balance-btn");
+  const balanceEditor = document.getElementById("balance-editor");
+  const balanceInput = document.getElementById("bank-balance");
+  const exportBtn = document.getElementById("export-btn");
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
 
-function initTabs() {
-  const tabButtons = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
+  function updateBalanceDisplay() {
+    document.getElementById("inline-current-balance").textContent = `$${currentBalance.toFixed(2)}`;
+  }
 
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabButtons.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(tab => tab.classList.remove('active'));
-
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.tab).classList.add('active');
+  function renderExpenses() {
+    expenseList.innerHTML = "";
+    expenses.forEach((e, i) => {
+      const li = document.createElement("li");
+      li.textContent = `${e.name} - $${e.amount.toFixed(2)} (${e.category})`;
+      const className = `category-${e.category.toLowerCase().replace(/ /g, "-")}`;
+      li.classList.add(className);
+      expenseList.appendChild(li);
     });
-  });
-}
+    updateChart();
+  }
 
-function initForms() {
-  document.getElementById('expense-form').addEventListener('submit', e => {
+  function updateChart() {
+    const ctxId = "expense-chart";
+    let ctx = document.getElementById(ctxId);
+
+    if (!ctx) {
+      const canvas = document.createElement("canvas");
+      canvas.id = ctxId;
+      document.getElementById("chart-panel").appendChild(canvas);
+      ctx = canvas;
+    }
+
+    const categoryTotals = {};
+    expenses.forEach((e) => {
+      categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
+    });
+
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+    const colors = labels.map((cat) =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(`--${cat.toLowerCase().replace(/ /g, "-")}-color`) || getRandomColor()
+    );
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels,
+        datasets: [{
+          label: "Expenses",
+          data,
+          backgroundColor: colors,
+        }],
+      },
+    });
+  }
+
+  function getRandomColor() {
+    return "#" + Math.floor(Math.random() * 16777215).toString(16);
+  }
+
+  expenseForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById('expense-name').value.trim();
-    const amount = parseFloat(document.getElementById('expense-amount').value);
-    const category = document.getElementById('expense-category').value;
+    const name = document.getElementById("expense-name").value;
+    const amount = parseFloat(document.getElementById("expense-amount").value);
+    const category = document.getElementById("expense-category").value;
 
     if (!name || isNaN(amount) || !category) return;
 
     expenses.push({ name, amount, category });
-    balance -= amount;
-
-    document.getElementById('expense-name').value = '';
-    document.getElementById('expense-amount').value = '';
-    document.getElementById('expense-category').value = '';
-
+    currentBalance -= amount;
     updateBalanceDisplay();
     renderExpenses();
-    renderChart();
+    expenseForm.reset();
   });
 
-  document.getElementById('deposit-form').addEventListener('submit', e => {
+  depositForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const amount = parseFloat(document.getElementById('deposit-amount').value);
+    const amount = parseFloat(document.getElementById("deposit-amount").value);
     if (!isNaN(amount)) {
-      balance += amount;
+      currentBalance += amount;
       updateBalanceDisplay();
     }
-    document.getElementById('deposit-amount').value = '';
+    depositForm.reset();
   });
 
-  document.getElementById('edit-balance-btn').addEventListener('click', () => {
-    document.getElementById('balance-editor').classList.toggle('hidden');
+  balanceBtn.addEventListener("click", () => {
+    balanceEditor.classList.toggle("hidden");
   });
 
-  document.getElementById('save-balance-btn').addEventListener('click', () => {
-    const newBalance = parseFloat(document.getElementById('bank-balance').value);
-    if (!isNaN(newBalance)) {
-      balance = newBalance;
+  saveBalanceBtn.addEventListener("click", () => {
+    const value = parseFloat(balanceInput.value);
+    if (!isNaN(value)) {
+      currentBalance = value;
       updateBalanceDisplay();
-      document.getElementById('balance-editor').classList.add('hidden');
     }
+    balanceInput.value = "";
+    balanceEditor.classList.add("hidden");
   });
 
-  document.getElementById('export-btn').addEventListener('click', () => {
-    alert("Export to Excel is coming in next patch. It will generate a downloadable .xlsx file with formatted data.");
-  });
-}
-
-function updateBalanceDisplay() {
-  document.getElementById('inline-current-balance').textContent = `$${balance.toFixed(2)}`;
-}
-
-function renderExpenses() {
-  const list = document.getElementById('expense-list');
-  list.innerHTML = '';
-
-  expenses.forEach(exp => {
-    const li = document.createElement('li');
-    const categoryClass = `category-${exp.category.toLowerCase().replace(/\s/g, '-')}`;
-    li.classList.add(categoryClass);
-    li.innerHTML = `${exp.name} - $${exp.amount.toFixed(2)} <strong>(${exp.category})</strong>`;
-    list.appendChild(li);
-  });
-}
-
-function renderChart() {
-  const chartPanel = document.getElementById('chart-panel');
-  chartPanel.innerHTML = '';
-
-  if (expenses.length === 0) return;
-
-  const totals = {};
-  expenses.forEach(({ amount, category }) => {
-    totals[category] = (totals[category] || 0) + amount;
+  exportBtn.addEventListener("click", () => {
+    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
+    const wb = XLSX.utils.book_new();
+    const wsData = [["Name", "Amount", "Category"], ...tableRows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+    XLSX.writeFile(wb, "Expenses_Export.xlsx");
   });
 
-  const data = {
-    labels: Object.keys(totals),
-    datasets: [{
-      label: 'Spending',
-      data: Object.values(totals),
-      backgroundColor: generateColors(Object.keys(totals).length),
-    }],
-  };
+  tabButtons.forEach(btn =>
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => b.classList.remove("active"));
+      tabContents.forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    })
+  );
 
-  const canvas = document.createElement('canvas');
-  chartPanel.appendChild(canvas);
-
-  chart = new Chart(canvas.getContext('2d'), {
-    type: 'pie',
-    data,
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-      },
-    }
-  });
-}
-
-function generateColors(count) {
-  const colors = [
-    '#3366cc', '#dc3912', '#ff9900', '#109618', '#990099',
-    '#0099c6', '#dd4477', '#66aa00', '#b82e2e', '#316395',
-    '#994499', '#22aa99', '#aaaa11', '#6633cc', '#e67300',
-    '#8b0707', '#651067', '#329262', '#5574a6', '#3b3eac'
-  ];
-  return colors.slice(0, count);
-}
+  updateBalanceDisplay();
+});
