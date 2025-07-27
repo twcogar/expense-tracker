@@ -1,57 +1,68 @@
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f2f8fc;
-  color: #222;
+/* Base Reset */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f3f8fc;
+  color: #333;
+  padding: 20px;
 }
 
 header {
-  background-color: #3399ff;
-  color: white;
-  padding: 20px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 h1 {
-  margin: 0;
+  color: #145da0;
 }
 
 .balance-inline {
+  font-size: 1.2em;
   margin-top: 10px;
-  font-weight: bold;
-  font-size: 1.1em;
+  color: #0d3c61;
 }
 
 .tabs {
   display: flex;
-  justify-content: space-around;
-  background-color: #e2efff;
-  padding: 10px;
-  border-bottom: 2px solid #ccc;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .tab-btn {
-  background-color: #cfe9ff;
-  border: none;
   padding: 10px 20px;
+  background-color: #e0eaf5;
+  color: #0c3f78;
+  border: none;
   border-radius: 20px;
-  font-size: 16px;
   cursor: pointer;
-  color: #004a80;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .tab-btn:hover,
 .tab-btn.active {
-  background-color: #80c8ff;
+  background-color: #cce0f7;
+  color: #0a2e5c;
   font-weight: bold;
+}
+
+main {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .tab-content {
   display: none;
+  background: #ffffff;
   padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .tab-content.active {
@@ -60,85 +71,74 @@ h1 {
 
 form {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 400px;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
-input,
-select,
-button {
-  padding: 12px;
-  font-size: 15px;
-  border-radius: 8px;
-  border: 1px solid #bbb;
+input, select, button {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  flex: 1 1 100%;
 }
 
 button {
-  background-color: #007acc;
-  color: white;
+  background-color: #1976d2;
+  color: #fff;
   border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #005f99;
+  background-color: #125a9c;
 }
 
-#expense-list {
+ul#expense-list {
   list-style: none;
-  padding: 0;
-  margin-top: 20px;
+  padding-left: 0;
 }
 
 #expense-list li {
-  padding: 10px 14px;
   margin-bottom: 10px;
-  border-left: 10px solid #007acc;
-  background-color: #eef7ff;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 8px 12px;
+  border-left: 6px solid #ccc;
+  background-color: #f8f9fb;
+  border-radius: 5px;
 }
 
+/* Category colors */
 .category-auto { border-color: #3366cc; }
-.category-groceries { border-color: #33cc33; }
-.category-utilities { border-color: #ff9900; }
-.category-entertainment { border-color: #cc33ff; }
-.category-loan { border-color: #ff6666; }
-.category-credit-card { border-color: #ff3333; }
-.category-insurance { border-color: #009999; }
-.category-health { border-color: #9966ff; }
-.category-travel { border-color: #6699cc; }
-.category-transportation { border-color: #ffcc00; }
-.category-dining { border-color: #ff6600; }
-.category-clothing { border-color: #cc99ff; }
-.category-home { border-color: #66ccff; }
-.category-personal-care { border-color: #ff99cc; }
-.category-taxes { border-color: #990000; }
-.category-savings { border-color: #33ccff; }
-.category-gifts { border-color: #cc0000; }
-.category-subscriptions { border-color: #999999; }
-.category-education { border-color: #000099; }
-.category-miscellaneous { border-color: #cccccc; }
+.category-clothing { border-color: #ff66b2; }
+.category-credit-card { border-color: #b82e2e; }
+.category-dining { border-color: #ff9900; }
+.category-education { border-color: #9933ff; }
+.category-entertainment { border-color: #e67300; }
+.category-gifts { border-color: #cc0066; }
+.category-groceries { border-color: #66aa00; }
+.category-health { border-color: #dd4477; }
+.category-home { border-color: #109618; }
+.category-insurance { border-color: #990099; }
+.category-loan { border-color: #329262; }
+.category-miscellaneous { border-color: #999999; }
+.category-personal-care { border-color: #c27ba0; }
+.category-savings { border-color: #22aa99; }
+.category-subscriptions { border-color: #316395; }
+.category-taxes { border-color: #aaaa11; }
+.category-transportation { border-color: #3b3eac; }
+.category-travel { border-color: #0099c6; }
+.category-utilities { border-color: #8b0707; }
 
-.chart-panel {
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  min-height: 250px;
-}
-
-#budget-settings {
+#chart-panel {
   margin-top: 20px;
+  text-align: center;
 }
 
 #balance-editor.hidden {
   display: none;
+}
+
+#export-btn {
+  margin-top: 15px;
 }
