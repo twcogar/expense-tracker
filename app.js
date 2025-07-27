@@ -1,4 +1,3 @@
-// DOM Elements
 const form = document.getElementById('expense-form');
 const nameInput = document.getElementById('expense-name');
 const amountInput = document.getElementById('expense-amount');
@@ -24,7 +23,6 @@ let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
 let bankBalance = parseFloat(localStorage.getItem('bankBalance')) || 0;
 
-// CHART SETUP
 let chart = new Chart(chartCanvas, {
     type: 'pie',
     data: {
@@ -41,39 +39,7 @@ let chart = new Chart(chartCanvas, {
     }
 });
 
-// EVENT LISTENERS
-form.addEventListener('submit', e => {
-    e.preventDefault();
-    const name = nameInput.value.trim();
-    const amount = parseFloat(amountInput.value);
-    const category = categoryInput.value;
-    if (!name || !amount || !category) return;
-
-    const expense = { name, amount, category };
-    expenses.push(expense);
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-
-    nameInput.value = '';
-    amountInput.value = '';
-    categoryInput.value = '';
-    updateUI();
-});
-
-exportBtn.addEventListener('click', () => {
-    const rows = [
-        ['Name', 'Amount', 'Category'],
-        ...expenses.map(e => [e.name, e.amount, e.category])
-    ];
-    let csvContent = 'data:text/csv;charset=utf-8,' + rows.map(r => r.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.href = encodedUri;
-    link.download = 'expenses.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-});
-
+// NAVIGATION
 tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
@@ -83,26 +49,67 @@ tabBtns.forEach(btn => {
     });
 });
 
-// BALANCE
+// ADD EXPENSE
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const category = categoryInput.value;
+    if (!name || isNaN(amount) || !category) return;
+
+    expenses.push({ name, amount, category });
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    nameInput.value = '';
+    amountInput.value = '';
+    categoryInput.value = '';
+    updateUI();
+});
+
+// EXPORT CSV
+exportBtn.addEventListener('click', () => {
+    const rows = [
+        ['Name', 'Amount', 'Category'],
+        ...expenses.map(e => [e.name, e.amount, e.category])
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'expenses.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+// DELETE EXPENSE
+function removeExpense(index) {
+    expenses.splice(index, 1);
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    updateUI();
+}
+window.removeExpense = removeExpense;
+
+// BALANCE FUNCTIONS
 editBalanceBtn.addEventListener('click', () => {
     balanceEditor.classList.toggle('hidden');
 });
 
 saveBalanceBtn.addEventListener('click', () => {
-    const balance = parseFloat(bankBalanceInput.value);
-    if (!isNaN(balance)) {
-        bankBalance = balance;
+    const val = parseFloat(bankBalanceInput.value);
+    if (!isNaN(val)) {
+        bankBalance = val;
         localStorage.setItem('bankBalance', bankBalance);
-        updateUI();
         balanceEditor.classList.add('hidden');
+        updateUI();
     }
 });
 
-// BUDGETS
+// BUDGET FUNCTIONS
 function buildBudgetSettings() {
     budgetSettings.innerHTML = '';
-    const categories = [...new Set(expenses.map(e => e.category))];
-    categories.forEach(cat => {
+    const uniqueCategories = [...new Set(expenses.map(e => e.category))];
+    uniqueCategories.forEach(cat => {
         const div = document.createElement('div');
         div.innerHTML = `
             <label>${cat}: </label>
@@ -125,67 +132,54 @@ saveBudgetsBtn.addEventListener('click', () => {
     updateUI();
 });
 
-// DELETE EXPENSE
-function removeExpense(index) {
-    expenses.splice(index, 1);
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    updateUI();
-}
-
-// UI RENDER
+// UI UPDATE
 function updateUI() {
     // Expense List
     list.innerHTML = '';
     expenses.forEach((e, i) => {
         const li = document.createElement('li');
         li.innerHTML = `${e.name} - $${e.amount.toFixed(2)} - ${e.category}
-            <button onclick="removeExpense(${i})" style="float:right">Delete</button>`;
+            <button onclick="removeExpense(${i})">Delete</button>`;
         list.appendChild(li);
     });
 
-    // Chart
+    // Totals by Category
     const totals = {};
     expenses.forEach(e => {
         totals[e.category] = (totals[e.category] || 0) + e.amount;
     });
 
+    // Chart Update
     chart.data.labels = Object.keys(totals);
     chart.data.datasets[0].data = Object.values(totals);
-    chart.data.datasets[0].backgroundColor = chart.data.labels.map(() =>
-        `hsl(${Math.random() * 360}, 60%, 70%)`
+    chart.data.datasets[0].backgroundColor = chart.data.labels.map(
+        () => `hsl(${Math.random() * 360}, 60%, 70%)`
     );
     chart.update();
 
-    // Balance Display
+    // Balance
     currentBalanceText.textContent = `$${bankBalance.toFixed(2)}`;
     const spent = expenses.reduce((sum, e) => sum + e.amount, 0);
-    const remaining = bankBalance - spent;
-    remainingBalanceDisplay.textContent = `Remaining Balance: $${remaining.toFixed(2)}`;
+    remainingBalanceDisplay.textContent = `Remaining Balance: $${(bankBalance - spent).toFixed(2)}`;
 
-    // Budgets
+    // Budget Inputs
     buildBudgetSettings();
+
+    // Budget Progress
     budgetBars.innerHTML = '';
     Object.keys(budgets).forEach(cat => {
         const limit = budgets[cat];
         const used = totals[cat] || 0;
         const percent = Math.min((used / limit) * 100, 100);
-        let color = 'green';
-        if (percent >= 100) color = 'red';
-        else if (percent >= 70) color = 'yellow';
-
         const bar = document.createElement('div');
         bar.classList.add('progress');
-        bar.innerHTML = `
-            <div class="bar ${color}" style="width:${percent}%">
-                ${used.toFixed(2)} / ${limit.toFixed(2)}
-            </div>
-        `;
+        const barColor = percent >= 100 ? 'red' : percent >= 70 ? 'yellow' : 'green';
+        bar.innerHTML = `<div class="bar ${barColor}" style="width:${percent}%">
+          ${used.toFixed(2)} / ${limit.toFixed(2)}
+        </div>`;
         budgetBars.appendChild(bar);
     });
 }
-
-// GLOBAL DELETE HANDLER
-window.removeExpense = removeExpense;
 
 // INIT
 updateUI();
