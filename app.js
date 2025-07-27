@@ -1,33 +1,34 @@
 let currentBalance = 0;
 let expenses = [];
 let chart;
+let budgets = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
-  const expenseList = document.getElementById("expense-list");
   const depositForm = document.getElementById("deposit-form");
-  const balanceBtn = document.getElementById("edit-balance-btn");
-  const saveBalanceBtn = document.getElementById("save-balance-btn");
-  const balanceEditor = document.getElementById("balance-editor");
   const balanceInput = document.getElementById("bank-balance");
+  const balanceEditor = document.getElementById("balance-editor");
+  const inlineBalanceLabel = document.getElementById("inline-current-balance");
+  const expenseList = document.getElementById("expense-list");
   const exportBtn = document.getElementById("export-btn");
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
   const expenseAmountInput = document.getElementById("expense-amount");
-  const inlineBalanceLabel = document.getElementById("inline-current-balance");
 
   function updateBalanceDisplay() {
     inlineBalanceLabel.textContent = `$${currentBalance.toFixed(2)}`;
-    inlineBalanceLabel.style.color = currentBalance < 0 ? 'red' : 'green';
+    inlineBalanceLabel.className = currentBalance < 0 ? "balance-negative" : "balance-positive";
   }
 
   function renderExpenses() {
     expenseList.innerHTML = "";
     expenses.forEach((e) => {
       const li = document.createElement("li");
-      li.textContent = `${e.name} - $${e.amount.toFixed(2)} (${e.category})`;
-      li.classList.add("expense-item");
       li.setAttribute("data-category", e.category);
+      li.innerHTML = `
+        <span>${e.name}</span>
+        <span>$${e.amount.toFixed(2)} - ${e.category}</span>
+      `;
       expenseList.appendChild(li);
     });
     updateChart();
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ctx) {
       const canvas = document.createElement("canvas");
       canvas.id = ctxId;
-      canvas.style.maxWidth = "280px"; // slightly smaller pie chart
       document.getElementById("chart-panel").appendChild(canvas);
       ctx = canvas;
     }
@@ -52,10 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const labels = Object.keys(categoryTotals);
     const data = Object.values(categoryTotals);
-    const colors = labels.map((cat) =>
-      getComputedStyle(document.documentElement)
-        .getPropertyValue(`--${cat.toLowerCase().replace(/ /g, "-")}-color`) || getRandomColor()
-    );
+    const colors = labels.map((cat) => {
+      const li = document.createElement("li");
+      li.setAttribute("data-category", cat);
+      document.body.appendChild(li);
+      const color = getComputedStyle(li).borderLeftColor;
+      document.body.removeChild(li);
+      return color || getRandomColor();
+    });
 
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
@@ -81,8 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   expenseForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("expense-name").value;
-    const amount = parseFloat(expenseAmountInput.value.replace(/[^0-9.-]+/g, ""));
+    const name = document.getElementById("expense-name").value.trim();
+    const amountStr = expenseAmountInput.value.replace(/[^0-9.-]+/g, "");
+    const amount = parseFloat(amountStr);
     const category = document.getElementById("expense-category").value;
 
     if (!name || isNaN(amount) || !category) return;
@@ -91,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentBalance -= amount;
     updateBalanceDisplay();
     renderExpenses();
+    checkBudgetStatus();
     expenseForm.reset();
   });
 
@@ -104,11 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     depositForm.reset();
   });
 
-  balanceBtn.addEventListener("click", () => {
-    balanceEditor.classList.toggle("hidden");
-  });
-
-  saveBalanceBtn.addEventListener("click", () => {
+  document.getElementById("save-balance-btn").addEventListener("click", () => {
     const value = parseFloat(balanceInput.value);
     if (!isNaN(value)) {
       currentBalance = value;
@@ -143,6 +145,38 @@ document.addEventListener("DOMContentLoaded", () => {
       expenseAmountInput.value = `$${val}`;
     }
   });
+
+  // Budget handling
+  document.querySelectorAll(".budget-save-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const row = btn.closest(".budget-row");
+      const category = row.querySelector(".budget-category").value;
+      const amount = parseFloat(row.querySelector(".budget-amount").value);
+      if (category && !isNaN(amount)) {
+        budgets[category] = amount;
+        checkBudgetStatus();
+      }
+    });
+  });
+
+  function checkBudgetStatus() {
+    let output = "";
+    const totals = {};
+
+    expenses.forEach(e => {
+      totals[e.category] = (totals[e.category] || 0) + e.amount;
+    });
+
+    for (const [cat, limit] of Object.entries(budgets)) {
+      if (totals[cat] > limit) {
+        output += `⚠ Over budget in ${cat} by $${(totals[cat] - limit).toFixed(2)}\n`;
+      }
+    }
+
+    const status = document.getElementById("budget-status");
+    status.textContent = output.trim() || "✅ All categories within budget.";
+    status.style.color = output ? "red" : "green";
+  }
 
   updateBalanceDisplay();
 });
