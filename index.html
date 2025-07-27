@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Expense Tracker</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- ExcelJS CDN for exporting to Excel -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.2.1/dist/exceljs.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Expense Tracker</h1>
 
-        <!-- Bank balance section -->
+        <!-- Balance Section -->
         <div class="balance-section">
             <!-- Display mode -->
             <div id="balance-display">
@@ -29,6 +27,7 @@
             <span id="remaining-balance" class="positive">Remaining Balance: $0.00</span>
         </div>
 
+        <!-- Expense Form -->
         <form id="expense-form">
             <div class="form-group">
                 <label for="name">Expense Name</label>
@@ -59,6 +58,7 @@
             <button type="submit" class="primary-btn">Add Expense</button>
         </form>
 
+        <!-- List and Chart -->
         <div class="expense-content">
             <ul id="expense-list"></ul>
             <div class="chart-container">
@@ -66,7 +66,19 @@
             </div>
         </div>
 
-        <button type="button" id="export-btn">Export to Excel</button>
+        <!-- Export Button -->
+        <button type="button" id="export-btn" class="primary-btn">Export to Excel</button>
+
+        <!-- Budgets Section -->
+        <button type="button" id="toggle-budget-panel" class="secondary-btn">Set Budgets</button>
+        <div id="budget-panel" class="hidden budget-panel">
+            <h2>Budgets</h2>
+            <div id="budget-inputs"></div>
+            <button type="button" id="save-budgets-btn" class="primary-btn">Save Budgets</button>
+        </div>
+
+        <!-- Progress bars container -->
+        <div id="budget-progress-container"></div>
     </div>
     <script src="app.js"></script>
 </body>
