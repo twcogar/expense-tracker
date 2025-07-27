@@ -85,3 +85,20 @@ form button:hover {
 .delete-btn:hover {
     background-color: #c82333;
 }
+
+#export-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    display: block;
+    width: fit-content;
+}
+
+#export-btn:hover {
+    background-color: #218838;
+}
