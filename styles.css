@@ -7,7 +7,7 @@
 }
 
 body {
-  background-color: #eaf6ff; /* lighter blue pastel background */
+  background-color: #eaf6ff;
   color: #333;
   padding: 20px;
   max-width: 900px;
@@ -255,14 +255,15 @@ li[data-category="Other"] { border-left-color: #9e9e9e; }
   margin-top: 20px;
 }
 
-.budget-bar-container {
+.budget-bar-wrapper {
   margin-bottom: 16px;
 }
 
-.budget-bar-label {
+.budget-bar-title {
   font-weight: bold;
-  margin-bottom: 5px;
-  color: #1c1c1c;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  color: #135d9e;
 }
 
 .budget-bar {
