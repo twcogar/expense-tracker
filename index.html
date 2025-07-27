@@ -13,7 +13,7 @@
     <h1>Budget & Expense Tracker</h1>
     <p>Track your expenses, set budgets, and view balance.</p>
     <div class="balance-display">
-      <strong>Balance:</strong> <span id="inline-current-balance">$0.00</span>
+      <strong>Balance:</strong> <span id="inline-current-balance" class="balance-amount">$0.00</span>
     </div>
   </header>
 
@@ -32,7 +32,7 @@
     <h2>Expense Tracker</h2>
     <form id="expense-form">
       <input type="text" id="expense-name" placeholder="Expense Name" required />
-      <input type="text" id="expense-amount" placeholder="$0.00" required />
+      <input type="text" id="expense-amount" placeholder="0.00" inputmode="decimal" required />
       <select id="expense-category" required>
         <option value="" disabled selected>Select Category</option>
         <option>Auto</option>
@@ -57,7 +57,7 @@
     </form>
     <ul id="expense-list"></ul>
     <div id="chart-panel">
-      <canvas id="expense-chart"></canvas>
+      <canvas id="expense-chart" width="280" height="280"></canvas>
     </div>
     <button id="export-btn">Export to Excel</button>
   </div>
@@ -93,7 +93,9 @@
   <!-- Budget Management Tab -->
   <div id="management-tab" class="tab-content">
     <h2>Budget Management</h2>
-    <div id="budget-management-content"></div>
+    <div id="budget-management-content">
+      <!-- Budget bars injected dynamically -->
+    </div>
   </div>
 
   <!-- Analytics Tab -->
@@ -104,7 +106,7 @@
       <div><strong>Top Category:</strong> <span id="top-category">-</span></div>
       <div><strong>Daily Burn Rate:</strong> <span id="burn-rate">$0.00/day</span></div>
     </div>
-    <canvas id="analytics-chart"></canvas>
+    <canvas id="analytics-chart" width="300" height="300"></canvas>
   </div>
 
   <!-- History Tab -->
@@ -113,7 +115,6 @@
     <label for="month-selector">Select Month:</label>
     <select id="month-selector">
       <option disabled selected>Select Month</option>
-      <!-- Populated dynamically -->
     </select>
     <div id="history-summary">
       <!-- Snapshot for the selected month -->
