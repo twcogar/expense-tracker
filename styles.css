@@ -1,8 +1,8 @@
-/* Light Theme CSS */
+/* Light Theme Styling */
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  background: #f5f9fc;
+  background: #f9fcff;
   color: #222;
 }
 
@@ -116,6 +116,22 @@ form button:hover {
   font-weight: bold;
 }
 
+.chart-panel {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chart-segment {
+  flex: 1 1 100px;
+  padding: 0.6rem;
+  background: #e7f0ff;
+  border-left: 6px solid #007bff;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
 #budget-bars .progress {
   background: #ddd;
   height: 20px;
@@ -142,6 +158,13 @@ form button:hover {
   align-items: center;
   gap: 0.6rem;
   margin-top: 1rem;
+}
+
+.balance-inline {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
 }
 
 .hidden {
