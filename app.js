@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderExpenses() {
     expenseList.innerHTML = "";
-    expenses.forEach((e, i) => {
+    expenses.forEach((e) => {
       const li = document.createElement("li");
       li.textContent = `${e.name} - $${e.amount.toFixed(2)} (${e.category})`;
       const className = `category-${e.category.toLowerCase().replace(/ /g, "-")}`;
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   expenseForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("expense-name").value;
+    const name = document.getElementById("expense-name").value.trim();
     const amount = parseFloat(document.getElementById("expense-amount").value);
     const category = document.getElementById("expense-category").value;
 
@@ -111,9 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   exportBtn.addEventListener("click", () => {
-    const tableRows = expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category]);
     const wb = XLSX.utils.book_new();
-    const wsData = [["Name", "Amount", "Category"], ...tableRows];
+    const wsData = [["Name", "Amount", "Category"], ...expenses.map(e => [e.name, `$${e.amount.toFixed(2)}`, e.category])];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
     XLSX.writeFile(wb, "Expenses_Export.xlsx");
