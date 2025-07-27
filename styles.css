@@ -1,283 +1,105 @@
-:root {
-    --primary-color: #007bff;
-    --secondary-color: #f5f6fa;
-    --text-color: #333333;
-    --danger-color: #dc3545;
-    --success-color: #28a745;
-    --background-color: #ffffff;
-}
-
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--secondary-color);
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
-    padding: 0;
-    color: var(--text-color);
+    background: #f7f9fc;
+    color: #333;
 }
 
-.container {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: var(--background-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-h1 {
+header {
+    background: #1e1f26;
+    color: white;
+    padding: 1rem;
     text-align: center;
-    margin-bottom: 2rem;
-    color: var(--primary-color);
-    font-size: 2rem;
 }
 
-/* Balance Section */
-.balance-section {
+.tabs {
+    display: flex;
+    justify-content: center;
+    background: #343a40;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    border-bottom: 3px solid #ffc107;
+    background: #23272b;
+}
+
+.tab-content {
+    display: none;
+    padding: 2rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+form {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-#balance-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-#balance-editor {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.hidden {
-    display: none;
-}
-
-#bank-balance {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    width: 160px;
-}
-
-#current-balance-text {
-    font-weight: 600;
-}
-
-#remaining-balance {
-    margin-left: auto;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-#remaining-balance.positive {
-    color: var(--success-color);
-}
-
-#remaining-balance.negative {
-    color: var(--danger-color);
-}
-
-/* Buttons */
-.primary-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s ease;
-}
-
-.primary-btn:hover {
-    background-color: #0056b3;
-}
-
-.secondary-btn {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
-}
-
-.secondary-btn:hover {
-    background-color: #5a6268;
-}
-
-#export-btn {
-    background-color: var(--success-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
-    display: block;
-    width: fit-content;
-}
-
-#export-btn:hover {
-    background-color: #218838;
-}
-
-/* Form styling */
-form {
-    display: grid;
-    grid-template-columns: 1fr;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
-@media (min-width: 600px) {
-    form {
-        grid-template-columns: repeat(2, 1fr);
-        align-items: end;
-    }
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-}
-
-input, select {
+form input, form select {
     padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+    flex: 1;
+    min-width: 150px;
 }
 
-/* Expense list and chart layout */
-.expense-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-@media (min-width: 768px) {
-    .expense-content {
-        flex-direction: row;
-        align-items: flex-start;
-    }
+form button {
+    padding: 0.5rem 1rem;
 }
 
 #expense-list {
     list-style: none;
     padding: 0;
-    margin: 0;
-    flex: 1;
-}
-
-#expense-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-#expense-list li:last-child {
-    border-bottom: none;
-}
-
-.delete-btn {
-    background-color: var(--danger-color);
-    color: white;
-    border: none;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    margin-left: 1rem;
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
-}
-
-.chart-container {
-    flex: 1;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-/* Budget panel */
-.budget-panel {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
     margin-top: 1rem;
 }
 
-.budget-panel h2 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
+#expense-list li {
+    background: #ffffff;
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
 }
 
-.budget-input-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.budget-input-group label {
-    flex: 1;
-    margin-right: 0.5rem;
-    font-weight: 600;
-}
-
-.budget-input-group input {
-    width: 100px;
-    padding: 0.4rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Progress bars */
-#budget-progress-container {
-    margin-top: 1.5rem;
-}
-
-.progress-bar {
-    margin-bottom: 0.8rem;
-}
-
-.progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-}
-
-.progress {
-    width: 100%;
-    height: 12px;
-    background-color: #e9ecef;
-    border-radius: 6px;
+#budget-bars .progress {
+    margin-top: 0.5rem;
+    background: #ddd;
+    height: 20px;
+    border-radius: 10px;
     overflow: hidden;
 }
 
-.progress-fill {
+#budget-bars .bar {
     height: 100%;
-    width: 0;
-    border-radius: 6px;
-    transition: width 0.3s ease;
+    transition: width 0.4s ease;
+    text-align: right;
+    padding-right: 5px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.bar.green { background: #28a745; }
+.bar.yellow { background: #ffc107; }
+.bar.red { background: #dc3545; }
+
+#balance-display, #balance-editor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.hidden {
+    display: none;
 }
