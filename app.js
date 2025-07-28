@@ -15,14 +15,20 @@ const defaultCategories = [
 function getCategoryColor(category) {
   if (categoryColors[category]) return categoryColors[category];
 
-  // Create dummy element to fetch CSS-defined color
-  const li = document.createElement("li");
-  li.setAttribute("data-category", category);
-  document.body.appendChild(li);
-  const color = getComputedStyle(li).borderLeftColor || getRandomColor();
-  document.body.removeChild(li);
-  categoryColors[category] = color;
-  return color;
+  const dummy = document.createElement("li");
+  dummy.setAttribute("data-category", category);
+  document.body.appendChild(dummy);
+  const style = getComputedStyle(dummy);
+  const gradient = style.getPropertyValue('--gradient-color') || 'linear-gradient(to bottom, #999, #666)';
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1, 1);
+  const computed = style.borderLeftColor || "#999";
+  document.body.removeChild(dummy);
+
+  categoryColors[category] = computed;
+  return computed;
 }
 
 function getGradient(category) {
@@ -72,12 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
       li.style.setProperty('--gradient-color', getGradient(e.category));
-      li.innerHTML = `
-        <div class="expense-name">${e.name}</div>
-        <div class="expense-amount">$${e.amount.toFixed(2)}</div>
-        <div class="expense-category">${e.category}</div>
-        <button class="delete-btn" data-index="${i}" title="Delete Expense">🗑️</button>
-      `;
+li.innerHTML = `
+  <div class="expense-name">${e.name}</div>
+  <div class="expense-amount">$${e.amount.toFixed(2)}</div>
+  <div class="expense-category">${e.category}</div>
+  <button class="delete-btn" data-index="${i}" title="Delete Expense"></button>
+`;
       expenseList.appendChild(li);
     });
 
@@ -267,15 +273,16 @@ document.addEventListener("DOMContentLoaded", () => {
     depositForm.reset();
   });
 
-  document.getElementById("save-balance-btn").addEventListener("click", () => {
-    const value = parseFloat(balanceInput.value);
-    if (!isNaN(value)) {
-      currentBalance = value;
-      updateBalanceDisplay();
-      saveState();
-    }
-    balanceInput.value = "";
-  });
+document.getElementById("balance-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const value = parseFloat(balanceInput.value);
+  if (!isNaN(value)) {
+    currentBalance = value;
+    updateBalanceDisplay();
+    saveState();
+  }
+  balanceInput.value = "";
+});
 
   exportBtn.addEventListener("click", () => {
     const wb = XLSX.utils.book_new();
