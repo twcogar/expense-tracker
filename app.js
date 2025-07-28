@@ -1,15 +1,13 @@
-// Updated app.js with all Phase 2 enhancements
+// app.js – Fully updated with all features and enhancements
 let currentBalance = 0;
 let expenses = [];
 let chart;
 let budgets = {};
 const categoryColors = {};
-
 const defaultCategories = [
-  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment",
-  "Groceries", "Insurance", "Internet", "Loan", "Medical",
-  "Other", "Pet Care", "Phone", "Rent", "Subscriptions",
-  "Transportation", "Utilities"
+  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment", "Groceries", "Insurance",
+  "Internet", "Loan", "Medical", "Other", "Pet Care", "Phone", "Rent",
+  "Subscriptions", "Transportation", "Utilities"
 ];
 
 function getCategoryColor(category) {
@@ -48,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const historySelector = document.getElementById("month-selector");
   const historySummary = document.getElementById("history-summary");
 
-  // INIT: Populate Budget Fields
   const budgetContainer = document.getElementById("budget-container");
   defaultCategories.sort().forEach(cat => {
     const row = document.createElement("div");
@@ -75,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="expense-name">${e.name}</div>
         <div class="expense-amount">$${e.amount.toFixed(2)}</div>
         <div class="expense-category">${e.category}</div>
-        <button class="delete-btn" data-index="${i}" title="Delete Expense">🗑️</button>
+        <button class="delete-btn" data-index="${i}" title="Delete">🗑️</button>
       `;
       expenseList.appendChild(li);
     });
@@ -165,12 +162,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAnalytics() {
     const totals = {};
     let total = 0;
-
     expenses.forEach(e => {
       totals[e.category] = (totals[e.category] || 0) + e.amount;
       total += e.amount;
     });
-
     const top = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
     const days = Math.max(1, new Date().getDate());
     analyticsSpent.textContent = `$${total.toFixed(2)}`;
@@ -180,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateHistory() {
     const monthly = {};
-
     expenses.forEach(e => {
       const date = new Date();
       const month = date.toLocaleString('default', { month: 'long' });
@@ -243,9 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const amountStr = expenseAmountInput.value.replace(/[^0-9.]/g, "");
     const amount = parseFloat(amountStr);
     const category = document.getElementById("expense-category").value;
-
     if (!name || isNaN(amount) || !category) return;
-
     expenses.push({ name, amount, category });
     currentBalance -= amount;
     updateBalanceDisplay();
@@ -278,6 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   exportBtn.addEventListener("click", () => {
     const wb = XLSX.utils.book_new();
+
+    // Expenses tab
     const wsData = [["Name", "Amount", "Category", "Date"]];
     expenses.forEach(e => {
       wsData.push([e.name, e.amount, e.category, new Date().toLocaleDateString()]);
@@ -285,15 +279,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
 
-    const canvas = document.getElementById("expense-chart");
-    const imgSheet = XLSX.utils.aoa_to_sheet([
-      ["Note: Excel export does not embed image directly via JavaScript."],
-      ["Recommendation: Use screenshot or insert manually."]
-    ]);
-    XLSX.utils.book_append_sheet(wb, imgSheet, "Chart");
+    // Budgets tab
+    const budgetSheet = [["Category", "Budget"]];
+    Object.entries(budgets).forEach(([cat, val]) => {
+      budgetSheet.push([cat, val]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(budgetSheet), "Budgets");
 
-    const fileName = `Expenses_${new Date().toISOString().split("T")[0]}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    // Analytics tab
+    const analyticsSheet = [
+      ["Total Spent", analyticsSpent.textContent],
+      ["Top Category", analyticsTop.textContent],
+      ["Burn Rate", analyticsBurn.textContent]
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(analyticsSheet), "Analytics");
+
+    // Chart note
+    const note = [["Chart image must be inserted manually."]];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(note), "Chart");
+
+    XLSX.writeFile(wb, `Expenses_${new Date().toISOString().split("T")[0]}.xlsx`);
   });
 
   document.getElementById("save-budget-btn").addEventListener("click", () => {
@@ -310,9 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function toTitleCase(str) {
-    return str.replace(/\w\S*/g, txt =>
-      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-    );
+    return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   }
 
   tabButtons.forEach(btn =>
