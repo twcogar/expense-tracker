@@ -19,10 +19,13 @@ function getCategoryColor(category) {
   document.body.appendChild(dummy);
   const style = getComputedStyle(dummy);
   const gradient = style.getPropertyValue('--gradient-color');
-  let solidColor = style.borderLeftColor;
+
+  // Extract the first color from the linear gradient
+  const match = gradient.match(/linear-gradient\(.*?,\s*(#[0-9a-fA-F]{3,6}|rgb\([^)]+\)|[a-zA-Z]+)\s*,/);
+  let solidColor = match ? match[1] : style.borderLeftColor;
+
   document.body.removeChild(dummy);
 
-  // fallback if no borderLeftColor
   if (!solidColor || solidColor === "rgba(0, 0, 0, 0)" || solidColor === "black") {
     solidColor = getRandomColor();
   }
