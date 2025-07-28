@@ -2,44 +2,34 @@ let currentBalance = 0;
 let expenses = [];
 let chart;
 let budgets = {};
-const categoryColors = {};
+const categoryColors = {
+  "Auto": "#009688",
+  "Clothing": "#00bcd4",
+  "Credit Card": "#f06292",
+  "Dining": "#ff9800",
+  "Entertainment": "#9c27b0",
+  "Groceries": "#4caf50",
+  "Insurance": "#795548",
+  "Internet": "#673ab7",
+  "Loan": "#8bc34a",
+  "Medical": "#e91e63",
+  "Other": "#9e9e9e",
+  "Pet Care": "#ff7043",
+  "Phone": "#607d8b",
+  "Rent": "#f44336",
+  "Subscriptions": "#ffc107",
+  "Transportation": "#3f51b5",
+  "Utilities": "#2196f3"
+};
 
-const defaultCategories = [
-  "Auto", "Clothing", "Credit Card", "Dining", "Entertainment",
-  "Groceries", "Insurance", "Internet", "Loan", "Medical",
-  "Other", "Pet Care", "Phone", "Rent", "Subscriptions",
-  "Transportation", "Utilities"
-];
+const defaultCategories = Object.keys(categoryColors);
 
 function getCategoryColor(category) {
-  if (categoryColors[category]) return categoryColors[category];
-
-  const dummy = document.createElement("li");
-  dummy.setAttribute("data-category", category);
-  document.body.appendChild(dummy);
-  const style = getComputedStyle(dummy);
-  const gradient = style.getPropertyValue('--gradient-color');
-
-  // Extract the first color from the linear gradient
-  const match = gradient.match(/linear-gradient\(.*?,\s*(#[0-9a-fA-F]{3,6}|rgb\([^)]+\)|[a-zA-Z]+)\s*,/);
-  let solidColor = match ? match[1] : style.borderLeftColor;
-
-  document.body.removeChild(dummy);
-
-  if (!solidColor || solidColor === "rgba(0, 0, 0, 0)" || solidColor === "black") {
-    solidColor = getRandomColor();
-  }
-
-  categoryColors[category] = solidColor;
-  return solidColor;
+  return categoryColors[category] || "#777";
 }
 
 function getGradient(category) {
   return `linear-gradient(to bottom, ${getCategoryColor(category)}, #1c75bc)`;
-}
-
-function getRandomColor() {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -131,6 +121,16 @@ document.addEventListener("DOMContentLoaded", () => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: "#333",
+              font: {
+                size: 14
+              }
+            }
+          }
+        }
       },
     });
   }
