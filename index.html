@@ -53,15 +53,15 @@
         <option>Transportation</option>
         <option>Utilities</option>
       </select>
-      <button type="submit">Add Expense</button>
+      <button type="submit" class="primary-btn">Add Expense</button>
     </form>
     <ul id="expense-list">
-      <!-- Expenses will be dynamically injected here, including a delete button via app.js -->
+      <!-- Expenses dynamically rendered with delete buttons -->
     </ul>
     <div id="chart-panel">
       <canvas id="expense-chart" width="280" height="280"></canvas>
     </div>
-    <button id="export-btn">Export to Excel</button>
+    <button id="export-btn" class="export-btn">Export to Excel</button>
   </div>
 
   <!-- Deposits Tab -->
@@ -69,7 +69,7 @@
     <h2>Make a Deposit</h2>
     <form id="deposit-form">
       <input type="number" id="deposit-amount" placeholder="Deposit Amount" required />
-      <button type="submit">Add Deposit</button>
+      <button type="submit" class="primary-btn">Add Deposit</button>
     </form>
   </div>
 
@@ -78,7 +78,7 @@
     <h2>Set Starting Balance</h2>
     <div id="balance-editor">
       <input type="number" id="bank-balance" placeholder="Enter New Balance" />
-      <button id="save-balance-btn">Save Balance</button>
+      <button id="save-balance-btn" class="primary-btn">Save Balance</button>
     </div>
   </div>
 
@@ -86,9 +86,9 @@
   <div id="budget-tab" class="tab-content">
     <h2>Set Budgets</h2>
     <div id="budget-container">
-      <!-- Budget rows will be dynamically populated -->
+      <!-- Budget inputs populated dynamically -->
     </div>
-    <button id="save-budget-btn">Save Budgets</button>
+    <button id="save-budget-btn" class="primary-btn">Save Budgets</button>
     <div id="budget-status"></div>
   </div>
 
@@ -96,7 +96,7 @@
   <div id="management-tab" class="tab-content">
     <h2>Budget Management</h2>
     <div id="budget-management-content">
-      <!-- Budget bars injected dynamically -->
+      <!-- Budget bar visualizations injected dynamically -->
     </div>
   </div>
 
@@ -119,7 +119,7 @@
       <option disabled selected>Select Month</option>
     </select>
     <div id="history-summary">
-      <!-- Snapshot for the selected month -->
+      <!-- Monthly history summary -->
     </div>
   </div>
 
