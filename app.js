@@ -1,4 +1,3 @@
-// Updated app.js with all features intact and adjustments applied
 let currentBalance = 0;
 let expenses = [];
 let chart;
@@ -19,21 +18,21 @@ function getCategoryColor(category) {
   dummy.setAttribute("data-category", category);
   document.body.appendChild(dummy);
   const style = getComputedStyle(dummy);
-  const gradient = style.getPropertyValue('--gradient-color') || 'linear-gradient(to bottom, #999, #666)';
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1, 1);
-  const computed = style.borderLeftColor || "#999";
+  const gradient = style.getPropertyValue('--gradient-color');
+  let solidColor = style.borderLeftColor;
   document.body.removeChild(dummy);
 
-  categoryColors[category] = computed;
-  return computed;
+  // fallback if no borderLeftColor
+  if (!solidColor || solidColor === "rgba(0, 0, 0, 0)" || solidColor === "black") {
+    solidColor = getRandomColor();
+  }
+
+  categoryColors[category] = solidColor;
+  return solidColor;
 }
 
 function getGradient(category) {
-  const base = getCategoryColor(category);
-  return `linear-gradient(to bottom, ${base}, #1c75bc)`;
+  return `linear-gradient(to bottom, ${getCategoryColor(category)}, #1c75bc)`;
 }
 
 function getRandomColor() {
@@ -43,6 +42,7 @@ function getRandomColor() {
 document.addEventListener("DOMContentLoaded", () => {
   const expenseForm = document.getElementById("expense-form");
   const depositForm = document.getElementById("deposit-form");
+  const balanceForm = document.getElementById("balance-form");
   const balanceInput = document.getElementById("bank-balance");
   const inlineBalanceLabel = document.getElementById("inline-current-balance");
   const expenseList = document.getElementById("expense-list");
@@ -55,8 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const analyticsBurn = document.getElementById("burn-rate");
   const historySelector = document.getElementById("month-selector");
   const historySummary = document.getElementById("history-summary");
-
   const budgetContainer = document.getElementById("budget-container");
+
   defaultCategories.sort().forEach(cat => {
     const row = document.createElement("div");
     row.className = "budget-row";
@@ -78,12 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const li = document.createElement("li");
       li.setAttribute("data-category", e.category);
       li.style.setProperty('--gradient-color', getGradient(e.category));
-li.innerHTML = `
-  <div class="expense-name">${e.name}</div>
-  <div class="expense-amount">$${e.amount.toFixed(2)}</div>
-  <div class="expense-category">${e.category}</div>
-  <button class="delete-btn" data-index="${i}" title="Delete Expense"></button>
-`;
+      li.innerHTML = `
+        <div class="expense-name">${e.name}</div>
+        <div class="expense-amount">$${e.amount.toFixed(2)}</div>
+        <div class="expense-category">${e.category}</div>
+        <button class="delete-btn" data-index="${i}" title="Delete Expense"></button>
+      `;
       expenseList.appendChild(li);
     });
 
@@ -273,16 +273,16 @@ li.innerHTML = `
     depositForm.reset();
   });
 
-document.getElementById("balance-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const value = parseFloat(balanceInput.value);
-  if (!isNaN(value)) {
-    currentBalance = value;
-    updateBalanceDisplay();
-    saveState();
-  }
-  balanceInput.value = "";
-});
+  balanceForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const value = parseFloat(balanceInput.value);
+    if (!isNaN(value)) {
+      currentBalance = value;
+      updateBalanceDisplay();
+      saveState();
+    }
+    balanceInput.value = "";
+  });
 
   exportBtn.addEventListener("click", () => {
     const wb = XLSX.utils.book_new();
@@ -293,7 +293,6 @@ document.getElementById("balance-form").addEventListener("submit", (e) => {
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Expenses");
 
-    const canvas = document.getElementById("expense-chart");
     const imgSheet = XLSX.utils.aoa_to_sheet([
       ["Note: Excel export does not embed image directly via JavaScript."],
       ["Recommendation: Use screenshot or insert manually."]
