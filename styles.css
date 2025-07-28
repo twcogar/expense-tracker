@@ -126,6 +126,25 @@ button:hover {
   background-color: #155a8c;
 }
 
+/* Save Balance and other green buttons */
+.green-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.green-btn:hover {
+  background-color: #218838;
+}
+
+.full-width {
+  width: 100%;
+}
+
 /* Expense list */
 #expense-list {
   list-style: none;
@@ -227,20 +246,9 @@ button:hover {
   border: 2px solid #1c75bc;
 }
 
+/* Apply full style to save balance button */
 #save-balance-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  cursor: pointer;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
   width: 100%;
-}
-
-#save-balance-btn:hover {
-  background-color: #218838;
 }
 
 /* Expense inner structure */
@@ -277,7 +285,7 @@ button:hover {
   color: white;
 }
 
-/* Category border colors — backup */
+/* Category border colors via gradient */
 li[data-category="Groceries"] { --gradient-color: linear-gradient(to bottom, #4caf50, #388e3c); }
 li[data-category="Rent"] { --gradient-color: linear-gradient(to bottom, #f44336, #c62828); }
 li[data-category="Utilities"] { --gradient-color: linear-gradient(to bottom, #2196f3, #1976d2); }
