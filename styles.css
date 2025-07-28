@@ -55,7 +55,7 @@ header p {
 .tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #e6f0fa;
+  background: linear-gradient(90deg, #b3e5fc, #e1f5fe);
   padding: 10px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -228,7 +228,7 @@ button:hover {
 }
 
 #save-balance-btn {
-  background-color: #28a745;
+  background-color: #1c75bc;
   color: white;
   border: none;
   cursor: pointer;
@@ -240,7 +240,7 @@ button:hover {
 }
 
 #save-balance-btn:hover {
-  background-color: #218838;
+  background-color: #135d9e;
 }
 
 /* Expense inner structure */
@@ -267,7 +267,7 @@ button:hover {
   color: #333;
   font-size: 1.1em;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -277,7 +277,7 @@ button:hover {
   color: white;
 }
 
-/* Category border colors — backup */
+/* Category border colors */
 li[data-category="Groceries"] { --gradient-color: linear-gradient(to bottom, #4caf50, #388e3c); }
 li[data-category="Rent"] { --gradient-color: linear-gradient(to bottom, #f44336, #c62828); }
 li[data-category="Utilities"] { --gradient-color: linear-gradient(to bottom, #2196f3, #1976d2); }
