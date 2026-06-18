@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content Filtering Knowledge Hub — Live Preview</title>
+<style>
+:root {
+  --blue950:#06275c; --blue900:#08336f; --blue800:#0a4692; --blue700:#165788;
+  --cyan:#00add0; --gold:#fed100; --green:#bed600; --red:#c90062;
+  --ink:#14283e; --muted:#5e7288; --line:rgba(104,142,182,.25);
+  --line2:rgba(22,87,136,.34); --shadow:0 24px 70px rgba(8,51,111,.10);
+  --soft:0 12px 30px rgba(8,51,111,.075);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; font-family:Arial,Helvetica,sans-serif; color:var(--ink);
+  background:
+    radial-gradient(circle at 10% 4%,rgba(0,173,208,.17),transparent 23%),
+    radial-gradient(circle at 92% 4%,rgba(22,87,136,.14),transparent 24%),
+    linear-gradient(180deg,#fbfdff 0%,#f4f8fd 42%,#edf4fb 100%);
+}
+body:before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:linear-gradient(rgba(22,87,136,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(22,87,136,.032) 1px,transparent 1px);
+  background-size:36px 36px; mask-image:linear-gradient(180deg,rgba(0,0,0,.76),rgba(0,0,0,.16));
+}
+.app{max-width:1480px;margin:0 auto;padding:10px 16px 32px}
+.hero{position:relative;height:196px;border-radius:28px;overflow:hidden;background:white;border:1px solid var(--line2);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.95)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.hotnav{position:absolute;z-index:5;left:55%;right:3%;top:38px;height:122px;display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.hotnav button{appearance:none;border:0;background:transparent;color:transparent;border-radius:20px;cursor:pointer;position:relative}
+.hotnav button:before{content:"";position:absolute;left:50%;top:38%;width:80px;height:80px;transform:translate(-50%,-50%);border-radius:50%;transition:.18s ease}
+.hotnav button:hover:before,.hotnav button.active:before{background:rgba(255,255,255,.14);box-shadow:0 0 0 5px rgba(0,173,208,.15),0 18px 30px rgba(8,51,111,.18);transform:translate(-50%,-52%)}
+.commandWrap{margin-top:12px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.90),rgba(247,251,255,.76));box-shadow:var(--soft),inset 0 1px 0 white;padding:12px}
+.command{display:grid;grid-template-columns:minmax(360px,1fr) repeat(3,142px);gap:10px;align-items:center}
+.search{position:relative}
+.search input{width:100%;height:54px;border:1px solid var(--line2);border-radius:18px;padding:0 16px 0 54px;outline:none;background:linear-gradient(180deg,#fff,#f8fbff);font-size:15px;color:var(--ink)}
+.search input:focus{border-color:rgba(0,173,208,.82);box-shadow:0 0 0 5px rgba(0,173,208,.14)}
+.search svg{position:absolute;left:18px;top:16px;width:23px;height:23px;stroke:var(--blue700)}
+.btn{height:54px;border-radius:17px;border:1px solid var(--line2);background:linear-gradient(180deg,#fff,#f6faff);color:var(--blue800);font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(8,51,111,.06),inset 0 1px 0 white}
+.btn.primary{background:linear-gradient(180deg,#1768c9,#08336f);color:white}
+.btn.gold{background:linear-gradient(180deg,#fff6c7,#fed100);color:#4d4200;border-color:rgba(254,209,0,.6)}
+.intelRow{margin-top:12px;display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:10px}
+.intelCard{min-height:82px;border-radius:22px;border:1px solid rgba(104,142,182,.22);background:linear-gradient(180deg,#fff,#f6fbff);padding:14px;box-shadow:0 10px 24px rgba(8,51,111,.055)}
+.intelCard strong{display:block;color:var(--blue900);font-size:28px;line-height:1}
+.intelCard span{display:block;margin-top:7px;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.03em}
+.intelCard.feature strong{font-size:16px;margin-bottom:6px}
+.intelCard.feature p{margin:0;color:#36506a;font-size:13px;line-height:1.35}
+.layout{margin-top:12px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px}
+.panel{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.90),rgba(247,251,255,.78));border-radius:26px;box-shadow:var(--soft),inset 0 1px 0 rgba(255,255,255,.96);overflow:hidden}
+.filters,.catalog{padding:16px}
+.panelHead,.catalogHead{position:relative;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px}
+.panelHead h2,.catalogHead h2{margin:0;color:var(--blue900);font-size:20px}
+.micro{color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.group{position:relative;margin-bottom:12px}
+.group label{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+select{width:100%;height:42px;border:1px solid var(--line);border-radius:15px;background:white;padding:0 11px;color:var(--ink)}
+.quick{position:relative;display:grid;gap:8px;margin-top:14px}
+.quick button{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(104,142,182,.22);border-radius:15px;background:rgba(255,255,255,.76);padding:11px 12px;color:var(--ink);font-weight:900;cursor:pointer}
+.quick button span{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:white;background:linear-gradient(180deg,#0d6ed6,#08336f)}
+.lifecycle{position:relative;margin-top:14px;border:1px solid rgba(104,142,182,.2);border-radius:20px;padding:13px;background:rgba(255,255,255,.62)}
+.lifecycle h3{margin:0 0 9px;color:var(--blue900);font-size:14px}
+.lifecycle div{font-size:12.5px;color:#37506a;line-height:1.36;margin-top:7px}
+.viewBtns{display:flex;gap:8px;flex-wrap:wrap}
+.viewBtns button{border:1px solid var(--line);background:white;border-radius:999px;padding:8px 11px;color:var(--blue800);font-weight:900;cursor:pointer}
+.grid{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{position:relative;overflow:hidden;border:1px solid rgba(104,142,182,.24);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,252,255,.90));box-shadow:0 12px 26px rgba(8,51,111,.06),inset 0 1px 0 white;padding:14px;transition:.16s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 20px 38px rgba(8,51,111,.10);border-color:rgba(0,173,208,.34)}
+.cardTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:9px}
+.type,.status{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:900;letter-spacing:.03em;white-space:nowrap}
+.type{background:rgba(0,173,208,.11);color:var(--blue800);border:1px solid rgba(0,173,208,.18)}
+.status.approved{background:rgba(190,214,0,.22);color:#4e6600;border:1px solid rgba(190,214,0,.30)}
+.status.in-review{background:rgba(254,209,0,.25);color:#735c00;border:1px solid rgba(254,209,0,.36)}
+.status.needs-review{background:rgba(201,0,98,.11);color:var(--red);border:1px solid rgba(201,0,98,.18)}
+.status.draft{background:#eef4fa;color:var(--muted);border:1px solid rgba(104,142,182,.22)}
+.card h3{margin:0;color:#122b49;font-size:17px;line-height:1.18}
+.id{margin-top:4px;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.04em}
+.card p{margin:9px 0 10px;color:#344a62;font-size:13.5px;line-height:1.38}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-bottom:10px}
+.meta b{display:block;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.meta span{display:block;margin-top:2px;color:#21364f;font-size:12.5px;font-weight:800}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+.tags span{border:1px solid rgba(104,142,182,.20);background:#f7fbff;color:#34536f;border-radius:999px;padding:4px 7px;font-size:10.5px;font-weight:800}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.actions button{border:1px solid rgba(104,142,182,.24);background:linear-gradient(180deg,#fff,#f5faff);border-radius:12px;padding:7px 9px;color:var(--blue800);font-size:11.5px;font-weight:900;cursor:pointer}
+.drawer{position:fixed;z-index:50;top:18px;right:18px;width:min(520px,calc(100vw - 36px));max-height:calc(100vh - 36px);overflow:auto;transform:translateX(calc(100% + 44px));transition:transform .22s ease;padding:20px}
+.drawer.open{transform:translateX(0)}
+.drawer h2{margin:0 42px 8px 0;color:var(--blue900)}
+.drawer p{color:#334a62;line-height:1.45}
+.close{position:absolute;right:16px;top:16px;width:38px;height:38px;border:0;border-radius:12px;background:#eef5fb;color:var(--blue900);font-weight:900;cursor:pointer}
+.footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:14px}
+@media(max-width:1180px){.hero{height:180px}.hotnav{left:52%;top:32px;height:112px}.hotnav button:before{width:66px;height:66px}.command{grid-template-columns:1fr 1fr 1fr}.search{grid-column:1/-1}.intelRow{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+@media(max-width:760px){.app{padding:8px}.hero{height:140px;border-radius:22px}.hotnav{display:none}.command{grid-template-columns:1fr}.intelRow,.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAH0BdwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxgZGhCCNCscEVItHh8BUjQyNSYnKCorLC..." alt="Content Filtering Knowledge Hub">
+    <nav class="hotnav" aria-label="Header menu">
+      <button data-type="SOP" title="SOPs">SOPs</button>
+      <button data-type="Governance Standard" title="Governance">Governance</button>
+      <button data-action="search" title="Search">Search</button>
+      <button data-action="filters" title="Filters">Filters</button>
+      <button data-action="admin" title="Settings">Settings</button>
+      <button data-status="Needs Review" title="Alerts">Alerts</button>
+    </nav>
+  </header>
+
+  <section class="commandWrap">
+    <div class="command">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.5"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <input id="q" placeholder="Search SOPs, guides, governance standards, systems, tags, or known errors...">
+      </div>
+      <button class="btn" id="reset">Reset</button>
+      <button class="btn gold" id="review">Review Queue</button>
+      <button class="btn primary" id="admin">Admin</button>
+    </div>
+  </section>
+
+  <section class="intelRow">
+    <div class="intelCard feature">
+      <strong>Operational Knowledge Center</strong>
+      <p>Fast access to SOPs, troubleshooting, governance, known errors, and support references.</p>
+    </div>
+    <div class="intelCard"><strong id="shown">8</strong><span>Visible Articles</span></div>
+    <div class="intelCard"><strong>5</strong><span>Approved</span></div>
+    <div class="intelCard"><strong>2</strong><span>Governance</span></div>
+    <div class="intelCard"><strong>2</strong><span>Review Items</span></div>
+  </section>
+
+  <main class="layout">
+    <aside class="panel filters" id="filters">
+      <div class="panelHead"><h2>Refine Knowledge</h2><span class="micro">ITIL View</span></div>
+      <div class="group"><label>Article Type</label><select id="type"><option value="">All Types</option><option>SOP</option><option>Troubleshooting Guide</option><option>Knowledge Article</option><option>Governance Standard</option><option>Known Error</option><option>Service Request</option></select></div>
+      <div class="group"><label>System</label><select id="system"><option value="">All Systems</option><option>Lightspeed Filter</option><option>SmartShield</option><option>ChromeOS</option><option>Chrome Browser</option><option>Admin Console</option></select></div>
+      <div class="group"><label>Status</label><select id="status"><option value="">All Statuses</option><option>Approved</option><option>In Review</option><option>Needs Review</option><option>Draft</option></select></div>
+      <div class="quick">
+        <button data-quick="Troubleshooting Guide">Troubleshooting <span>›</span></button>
+        <button data-quick="Governance Standard">Governance <span>›</span></button>
+        <button data-quick="Known Error">Known Errors <span>›</span></button>
+        <button data-quick="SOP">SOP Library <span>›</span></button>
+      </div>
+      <section class="lifecycle">
+        <h3>Lifecycle Logic</h3>
+        <div><b>Draft:</b> staged and hidden from standard users.</div>
+        <div><b>In Review:</b> owner validation required.</div>
+        <div><b>Approved:</b> searchable and operationally visible.</div>
+      </section>
+    </aside>
+
+    <section class="panel catalog">
+      <div class="catalogHead">
+        <div><h2>Knowledge Catalog</h2><span class="micro" id="summary">Showing all approved and working content</span></div>
+        <div class="viewBtns"><button id="sortTitle">Sort Title</button><button id="sortStatus">Sort Status</button><button id="approvedOnly">Approved Only</button></div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+
+  <aside class="panel drawer" id="drawer">
+    <button class="close" id="close">×</button>
+    <h2 id="drawerTitle">Admin Review</h2>
+    <p id="drawerBody">Admin-only controls appear here in production after AuthService confirms the current user is approved.</p>
+  </aside>
+
+  <div class="footer">WCPSS Technology Services Division • Content Filtering Knowledge Hub • Live Preview</div>
+</div>
+
+<script>
+const articles = [
+  ["LSF-SOP-023","Web Activity Log Review","SOP","Lightspeed Filter","Approved","Help Desk • TSD","Validate browsing activity, policy context, identity, and escalation evidence before sending a filtering issue forward.","web activity, logs, evidence, policy"],
+  ["SS-SOP-001","SmartShield Overview","SOP","SmartShield","Approved","TSD • School Tech","Reference for SmartShield enforcement behavior, policy assignment logic, and network-level troubleshooting boundaries.","smartshield, dns, policy, network"],
+  ["CF-TG-001","Clear Chrome Cache and Retest","Troubleshooting Guide","ChromeOS","Approved","Help Desk","Quick customer-facing retest workflow for browser/session-based filtering symptoms before deeper escalation.","chrome, cache, retest, session"],
+  ["CF-KB-014","Account or Profile Mismatch","Knowledge Article","ChromeOS","Approved","Help Desk • School Tech","Explains how personal profiles, stale sessions, and identity mismatch can affect filtering outcomes.","identity, profile, login, policy"],
+  ["CF-GOV-003","SSL Decryption Bypass Governance","Governance Standard","Lightspeed Filter","In Review","TSD","Operational standard for evaluating, approving, minimizing, and documenting SSL bypass entries with least-privilege controls.","ssl, bypass, governance, approval"],
+  ["CF-KE-002","Leadership Dashboard Access Limitation","Known Error","Lightspeed Filter","Needs Review","TSD • Leadership","Known role limitation impacting delegated dashboard access, reporting exports, executive visibility, and least-privilege governance.","dashboard, roles, least privilege, known error"],
+  ["CF-TG-004","Collect DevTools Evidence","Troubleshooting Guide","Chrome Browser","Approved","Help Desk • School Tech","Evidence collection guide for capturing console, network, and HAR details before vendor escalation.","devtools, har, console, evidence"],
+  ["CF-GOV-007","Access Governance and Role Review","Governance Standard","Admin Console","Approved","TSD","Least-privilege reference for administrative role assignments, dashboard access, and operational approval boundaries.","roles, access, least privilege, governance"]
+];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function card(a){
+  const [id,title,type,system,status,audience,summary,tags]=a;
+  const statusClass=status.toLowerCase().replaceAll(' ','-');
+  const tagHtml=tags.split(',').slice(0,4).map(t=>`<span>${esc(t.trim())}</span>`).join('');
+  return `<article class="card" data-type="${esc(type)}" data-system="${esc(system)}" data-status="${esc(status)}" data-search="${esc(a.join(' ').toLowerCase())}">
+    <div class="cardTop"><span class="type">${esc(type)}</span><span class="status ${statusClass}">${esc(status)}</span></div>
+    <h3>${esc(title)}</h3><div class="id">${esc(id)}</div><p>${esc(summary)}</p>
+    <div class="meta"><div><b>System</b><span>${esc(system)}</span></div><div><b>Audience</b><span>${esc(audience)}</span></div></div>
+    <div class="tags">${tagHtml}</div><div class="actions"><button onclick="drawer('${esc(title)}','${esc(summary)}')">Open</button><button onclick="drawer('Related Articles','Production resolves related records from the RelatedArticles field.')">Related</button></div>
+  </article>`;
+}
+const grid=document.getElementById('grid');
+grid.innerHTML=articles.map(card).join('');
+const q=document.getElementById('q'), type=document.getElementById('type'), system=document.getElementById('system'), status=document.getElementById('status');
+const shown=document.getElementById('shown'), summary=document.getElementById('summary');
+function cards(){return [...document.querySelectorAll('.card')];}
+function apply(){
+  const query=q.value.trim().toLowerCase(), t=type.value, s=system.value, st=status.value; let n=0;
+  cards().forEach(c=>{const ok=(!query||c.dataset.search.includes(query))&&(!t||c.dataset.type===t)&&(!s||c.dataset.system===s)&&(!st||c.dataset.status===st);c.style.display=ok?'':'none';if(ok)n++;});
+  shown.textContent=n; summary.textContent=n===cards().length?'Showing all approved and working content':`Showing ${n} of ${cards().length} matching articles`;
+}
+function active(btn){document.querySelectorAll('.hotnav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active')}
+function drawer(title,body){document.getElementById('drawerTitle').textContent=title;document.getElementById('drawerBody').textContent=body;document.getElementById('drawer').classList.add('open')}
+[q,type,system,status].forEach(e=>e.addEventListener('input',apply));
+document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{type.value=b.dataset.type;active(b);apply();});
+document.querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>{status.value=b.dataset.status;active(b);apply();});
+document.querySelector('[data-action="search"]').onclick=()=>q.focus();
+document.querySelector('[data-action="filters"]').onclick=()=>document.getElementById('filters').scrollIntoView({behavior:'smooth'});
+document.querySelector('[data-action="admin"]').onclick=()=>drawer('Admin Review','Controlled admin layer: add/edit metadata, validate review dates, audit changes, and manage lifecycle status.');
+document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>{type.value=b.dataset.quick;active(null);apply();});
+document.getElementById('reset').onclick=()=>{q.value='';type.value='';system.value='';status.value='';active(null);apply();};
+document.getElementById('review').onclick=()=>{status.value='In Review';active(null);apply();drawer('Review Queue','This filters records requiring owner validation or lifecycle review.');};
+document.getElementById('admin').onclick=()=>drawer('Admin Review','Controlled admin layer: add/edit metadata, validate review dates, audit changes, and manage lifecycle status.');
+document.getElementById('close').onclick=()=>document.getElementById('drawer').classList.remove('open');
+document.getElementById('approvedOnly').onclick=()=>{status.value='Approved';apply();};
+document.getElementById('sortTitle').onclick=()=>{const sorted=articles.slice().sort((a,b)=>a[1].localeCompare(b[1]));grid.innerHTML=sorted.map(card).join('');apply();};
+document.getElementById('sortStatus').onclick=()=>{const sorted=articles.slice().sort((a,b)=>a[4].localeCompare(b[4]));grid.innerHTML=sorted.map(card).join('');apply();};
+</script>
+</body>
+</html>
