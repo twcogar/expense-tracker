@@ -1,0 +1,30 @@
+const CFKH = {
+  data: window.CFKH_BOOT || { articles: [], reviewQueue: [], taxonomy: { types: [], statuses: [], systems: [] }, settings: {}, user: {} },
+  state: {
+    query: '', type: '', system: '', status: '', quick: '', approvedOnly: false,
+    sort: 'updated', listView: false, favorites: new Set(), activeHeader: ''
+  },
+  $: function(selector) { return document.querySelector(selector); },
+  $$: function(selector) { return Array.prototype.slice.call(document.querySelectorAll(selector)); },
+  escape: function(value) {
+    return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function(char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  },
+  toast: function(message) {
+    var element = CFKH.$('#toast');
+    element.textContent = message;
+    element.classList.add('show');
+    window.setTimeout(function() { element.classList.remove('show'); }, 2200);
+  },
+  openDrawer: function(title, subtitle, body) {
+    CFKH.$('#drawerTitle').textContent = title;
+    CFKH.$('#drawerSubtitle').textContent = subtitle || '';
+    CFKH.$('#drawerBody').innerHTML = body || '';
+    CFKH.$('#drawer').classList.add('open');
+  },
+  closeDrawer: function() { CFKH.$('#drawer').classList.remove('open'); },
+  statusClass: function(status) {
+    return String(status || '').toLowerCase().replace(/\s+/g, '-');
+  }
+};
