@@ -1,0 +1,17 @@
+<div class="app">
+  <header class="banner" id="banner" aria-label="Content Filtering Knowledge Hub">
+    <? if (bannerDataUri) { ?>
+      <img src="<?!= bannerDataUri ?>" alt="Content Filtering Knowledge Hub approved banner">
+    <? } else { ?>
+      <div class="banner-missing">Approved banner source not configured. Run <strong>setApprovedBannerFileId(fileId)</strong> once from the Apps Script project.</div>
+    <? } ?>
+    <nav class="hotspots" aria-label="Knowledge hub sections">
+      <button class="h-sop" data-header-action="sop" aria-label="SOP Library"></button>
+      <button class="h-gov" data-header-action="governance" aria-label="Governance"></button>
+      <button class="h-search" data-header-action="search" aria-label="Search"></button>
+      <button class="h-filter" data-header-action="filters" aria-label="Filters"></button>
+      <button class="h-settings" data-header-action="settings" aria-label="Settings"></button>
+      <button class="h-alerts" data-header-action="alerts" aria-label="Alerts"></button>
+    </nav>
+  </header>
+</div>
