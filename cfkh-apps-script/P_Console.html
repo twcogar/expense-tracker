@@ -1,0 +1,82 @@
+  <section class="command">
+    <div class="live"><span class="pulse"></span>CONSOLE LIVE</div>
+    <div class="search"><span class="icon">⌕</span><input id="searchInput" placeholder="Search knowledge, systems, tags, owners, policy, or symptoms…"><span class="key">⌘ K</span></div>
+    <button class="btn" id="resetButton">Reset</button>
+    <button class="btn queue" id="reviewButton">Review Queue <span id="reviewCount">0</span></button>
+    <button class="btn create" id="createButton">+ Create</button>
+    <button class="btn admin" id="adminButton">Admin</button>
+  </section>
+
+  <section class="metrics" aria-label="Knowledge operations metrics">
+    <article class="metric"><h2>Operational Knowledge Command Center</h2><p>Governed content filtering SOPs, troubleshooting, evidence, known errors, and lifecycle control.</p></article>
+    <article class="metric"><strong id="metricVisible">0</strong><small>Visible Articles</small><em id="metricVisibleNote">Loading</em></article>
+    <article class="metric"><strong id="metricApproved">0</strong><small>Approved</small><em>Operationally visible</em></article>
+    <article class="metric"><strong id="metricGovernance">0</strong><small>Governance</small><em>Control standards</em></article>
+    <article class="metric"><strong id="metricReview">0</strong><small>Review Alerts</small><em style="color:#ba0d58">Owner action needed</em></article>
+    <article class="metric"><strong id="metricSystems">0</strong><small>Systems Mapped</small><em>Coverage tracked</em></article>
+  </section>
+
+  <main class="workspace">
+    <aside class="panel sidebar" id="filterPanel">
+      <div class="panel-head"><h2>Knowledge Control</h2><span class="micro">ITIL View</span></div>
+      <div class="navs">
+        <button class="nav active" data-nav="catalog">Knowledge Catalog <span class="nav-dot"></span></button>
+        <button class="nav" data-nav="review">Review Queue <span class="pill-count" id="leftReviewCount">0</span></button>
+        <button class="nav" data-nav="governance">Governance Control <span class="nav-dot"></span></button>
+        <button class="nav" data-nav="insights">Operational Insights <span class="nav-dot"></span></button>
+      </div>
+      <div class="divider"></div>
+      <div class="filters">
+        <div class="field"><label for="typeFilter">Content Type</label><select id="typeFilter"><option value="">All Content Types</option></select></div>
+        <div class="field"><label for="systemFilter">System / Solution</label><select id="systemFilter"><option value="">All Systems</option></select></div>
+        <div class="field"><label for="statusFilter">Lifecycle Status</label><select id="statusFilter"><option value="">All Statuses</option></select></div>
+      </div>
+      <div class="divider"></div>
+      <span class="micro">Quick Filters</span>
+      <div class="quick">
+        <button data-quick="recent">Recently Updated <span class="pill-count">↗</span></button>
+        <button data-quick="review">Requires Approval <span class="pill-count" id="quickReviewCount">0</span></button>
+        <button data-quick="favorites">My Favorites <span class="pill-count">★</span></button>
+        <button data-quick="all">All Content <span class="pill-count">×</span></button>
+      </div>
+      <div class="health"><h3>Console Health</h3><p id="healthCopy">Shared catalog is loading.</p></div>
+    </aside>
+
+    <section class="panel catalog">
+      <div class="catalog-head">
+        <div><h1 id="catalogTitle">Knowledge Catalog</h1><p id="catalogSubtitle">Approved operational knowledge and actively governed work in one place.</p></div>
+        <div class="tools">
+          <select id="sortControl"><option value="updated">Sort: Recently Updated</option><option value="title">Sort: Title A–Z</option><option value="status">Sort: Lifecycle Status</option></select>
+          <button id="approvedOnlyButton">Approved Only</button>
+          <button id="gridButton" class="active" aria-label="Grid view">▦</button>
+          <button id="listButton" aria-label="List view">☷</button>
+        </div>
+      </div>
+      <div class="tabs" id="typeTabs"></div>
+      <div class="cards" id="articleCards"></div>
+    </section>
+
+    <aside class="panel studio" id="contentStudio">
+      <div class="panel-head"><h2>Content Studio</h2><span class="micro">Create</span></div>
+      <section class="studio-section">
+        <header>New Controlled Content <span>INTAKE</span></header>
+        <div class="studio-actions">
+          <button class="create-tile" data-create-type="Knowledge Article"><span class="create-icon">✎</span><span><b>Knowledge Article</b><small>Guidance, FAQ, operational context</small></span><i>›</i></button>
+          <button class="create-tile" data-create-type="Troubleshooting Guide"><span class="create-icon">⌁</span><span><b>Troubleshooting Guide</b><small>Symptoms, checks, resolution</small></span><i>›</i></button>
+          <button class="create-tile" data-create-type="SOP"><span class="create-icon">▤</span><span><b>Standard Operating Procedure</b><small>Controlled task process</small></span><i>›</i></button>
+        </div>
+      </section>
+      <section class="studio-section">
+        <header>Process Content <span>WORKFLOW</span></header>
+        <button class="studio-row" id="studioReviewButton">Review Queue <span class="pill-count" id="studioReviewCount">0</span></button>
+        <button class="studio-row" id="studioDraftButton">Draft Workspace <span>›</span></button>
+        <button class="studio-row" id="studioSettingsButton">Lifecycle Settings <span>›</span></button>
+      </section>
+      <section class="studio-section">
+        <header>Lifecycle Control <span>GOVERNANCE</span></header>
+        <div style="padding:9px;color:#50677f;font-size:10px;line-height:1.45">Draft → In Review → Approved → Archived. Every transition is recorded in the shared audit log.</div>
+      </section>
+      <button class="studio-cta" id="openBuilderButton">Open Article Builder</button>
+    </aside>
+  </main>
+</div>
