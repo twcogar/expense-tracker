@@ -9,17 +9,11 @@ function doGet() {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
-}
-
-function setupKnowledgeHub() {
-  return BootstrapService.setup();
-}
-
-function setApprovedBannerFileId(fileId) {
-  return AssetService.setBannerFileId(fileId);
-}
+function include(filename) { return HtmlService.createHtmlOutputFromFile(filename).getContent(); }
+function setupKnowledgeHub() { return BootstrapService.setup(); }
+function setApprovedBannerFileId(fileId) { return AssetService.setBannerFileId(fileId); }
+function configureAccess(config) { return AdminService.configureAccess(config || {}); }
+function getAccessSummary() { return AdminService.getAccessSummary(); }
 
 function getInitialContext() { return AppService.getInitialContext(); }
 function listArticles(filters) { return ArticleService.list(filters || {}); }
