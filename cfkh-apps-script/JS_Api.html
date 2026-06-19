@@ -1,0 +1,28 @@
+const Api = {
+  call: function(method) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function(resolve, reject) {
+      try {
+        var runner = google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(function(error) {
+            reject(new Error(error && error.message ? error.message : 'The server request failed.'));
+          });
+        runner[method].apply(runner, args);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+  refresh: function(message) {
+    return Api.call('getInitialContext').then(function(context) {
+      CFKH.data = context;
+      Render.all();
+      if (message) CFKH.toast(message);
+      return context;
+    }).catch(function(error) {
+      CFKH.toast(error.message || 'Unable to refresh the shared catalog.');
+      throw error;
+    });
+  }
+};
