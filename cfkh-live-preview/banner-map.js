@@ -16,16 +16,24 @@
 
   function updateAlertBadge() {
     const badge = $('#alertBadge');
-    if (!badge) return;
+    const alertsButton = $('.hotspots .h-alerts');
+    if (!badge || !alertsButton) return;
     const count = 2 + previewReviewCount();
+    const noun = count === 1 ? 'review item' : 'review items';
     badge.textContent = String(count);
     badge.hidden = count < 1;
+    badge.setAttribute('aria-label', `${count} ${noun}`);
+    alertsButton.setAttribute('aria-label', `Alerts — ${count} ${noun}`);
     const reviewCount = $('#reviewCount');
     if (reviewCount) reviewCount.textContent = String(count);
   }
 
   function activate(button) {
-    $$('.hotspots button').forEach((node) => node.classList.toggle('is-active', node === button));
+    $$('.hotspots button').forEach((node) => {
+      const current = node === button;
+      node.classList.toggle('is-active', current);
+      node.setAttribute('aria-pressed', current ? 'true' : 'false');
+    });
   }
 
   function clickSelector(selector) {
@@ -74,10 +82,13 @@
 
   function init() {
     $$('.hotspots button').forEach((button) => {
+      button.setAttribute('aria-pressed', 'false');
       button.onclick = (event) => {
         event.preventDefault();
         mapAction(button);
       };
+      button.addEventListener('pointerenter', () => button.classList.add('is-hovering'));
+      button.addEventListener('pointerleave', () => button.classList.remove('is-hovering'));
     });
     updateAlertBadge();
     window.setInterval(updateAlertBadge, 500);
