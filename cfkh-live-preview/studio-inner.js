@@ -1,1 +1,1 @@
-(()=>{const s=document.createElement('script');s.src='studio-core.js';document.body.appendChild(s)})();
+(()=>{['studio-state.js','studio-modal.js','studio-panel.js'].forEach(src=>{const s=document.createElement('script');s.src=src;s.async=false;document.body.appendChild(s)})})();
