@@ -1,0 +1,152 @@
+const Render = {
+  all: function() {
+    Render.options();
+    Render.metrics();
+    Render.tabs();
+    Render.cards();
+    Render.access();
+  },
+  options: function() {
+    Render.fillSelect('#typeFilter', CFKH.data.taxonomy.types || [], 'All Content Types');
+    Render.fillSelect('#systemFilter', CFKH.data.taxonomy.systems || [], 'All Systems');
+    Render.fillSelect('#statusFilter', CFKH.data.taxonomy.statuses || [], 'All Statuses');
+  },
+  fillSelect: function(selector, values, label) {
+    var select = CFKH.$(selector);
+    if (!select || select.dataset.ready === 'true') return;
+    select.innerHTML = '<option value="">' + label + '</option>' + values.map(function(value) {
+      return '<option value="' + CFKH.escape(value) + '">' + CFKH.escape(value) + '</option>';
+    }).join('');
+    select.dataset.ready = 'true';
+  },
+  visibleArticles: function() {
+    var state = CFKH.state;
+    var query = state.query.toLowerCase();
+    var articles = CFKH.data.articles || [];
+    var visible = articles.filter(function(article) {
+      if (article.isArchived) return false;
+      if (state.type && article.type !== state.type) return false;
+      if (state.system && article.system !== state.system) return false;
+      if (state.status && article.status !== state.status) return false;
+      if (state.approvedOnly && article.status !== 'Approved') return false;
+      if (state.quick === 'review' && ['In Review', 'Needs Review'].indexOf(article.status) === -1) return false;
+      if (state.quick === 'favorites' && !state.favorites.has(article.id)) return false;
+      if (query) {
+        var corpus = [article.id, article.type, article.title, article.system, article.status, article.audience, article.owner, article.summary].concat(article.tags || []).join(' ').toLowerCase();
+        if (corpus.indexOf(query) === -1) return false;
+      }
+      return true;
+    });
+    var order = { 'Approved': 1, 'In Review': 2, 'Needs Review': 3, 'Draft': 4, 'Archived': 5 };
+    if (state.sort === 'title') visible.sort(function(a, b) { return a.title.localeCompare(b.title); });
+    else if (state.sort === 'status') visible.sort(function(a, b) { return order[a.status] - order[b.status]; });
+    else visible.sort(function(a, b) { return String(b.updatedAt).localeCompare(String(a.updatedAt)); });
+    return visible;
+  },
+  metrics: function() {
+    var all = (CFKH.data.articles || []).filter(function(article) { return !article.isArchived; });
+    var review = all.filter(function(article) { return ['In Review', 'Needs Review'].indexOf(article.status) !== -1; });
+    var visible = Render.visibleArticles();
+    CFKH.$('#metricVisible').textContent = visible.length;
+    CFKH.$('#metricVisibleNote').textContent = visible.length === all.length ? 'Current catalog' : 'Filtered view';
+    CFKH.$('#metricApproved').textContent = all.filter(function(article) { return article.status === 'Approved'; }).length;
+    CFKH.$('#metricGovernance').textContent = all.filter(function(article) { return article.type === 'Governance Standard'; }).length;
+    CFKH.$('#metricReview').textContent = review.length;
+    CFKH.$('#metricSystems').textContent = new Set(all.map(function(article) { return article.system; })).size;
+    ['#reviewCount', '#leftReviewCount', '#quickReviewCount', '#studioReviewCount'].forEach(function(selector) {
+      var element = CFKH.$(selector); if (element) element.textContent = review.length;
+    });
+    CFKH.$('#healthCopy').textContent = all.length + ' shared records are available. ' + review.length + ' record' + (review.length === 1 ? '' : 's') + ' require lifecycle action.';
+  },
+  tabs: function() {
+    var target = CFKH.$('#typeTabs');
+    var tabs = [{ value: '', label: 'All Content' }].concat((CFKH.data.taxonomy.types || []).map(function(type) { return { value: type, label: type === 'Troubleshooting Guide' ? 'Troubleshooting' : type === 'Knowledge Article' ? 'Knowledge Articles' : type === 'Governance Standard' ? 'Governance' : type + (type === 'SOP' ? 's' : ''); }));
+    target.innerHTML = tabs.map(function(tab) {
+      return '<button class="tab ' + (CFKH.state.type === tab.value ? 'active' : '') + '" data-tab="' + CFKH.escape(tab.value) + '">' + CFKH.escape(tab.label) + '</button>';
+    }).join('');
+  },
+  cards: function() {
+    var cards = Render.visibleArticles();
+    var target = CFKH.$('#articleCards');
+    target.classList.toggle('list', CFKH.state.listView);
+    if (!cards.length) {
+      target.innerHTML = '<div class="empty">No records match the active knowledge controls. Reset filters or broaden the search.</div>';
+      return;
+    }
+    target.innerHTML = cards.map(Render.articleCard).join('');
+  },
+  articleCard: function(article) {
+    var favorite = CFKH.state.favorites.has(article.id);
+    return '<article class="card">' +
+      '<div class="card-top"><span class="badge type">' + CFKH.escape(article.type) + '</span><span class="badge ' + CFKH.statusClass(article.status) + '">' + CFKH.escape(article.status) + '</span></div>' +
+      '<h3>' + CFKH.escape(article.title) + '</h3>' +
+      '<div class="article-id">' + CFKH.escape(article.id) + ' · ' + CFKH.escape(article.owner) + '</div>' +
+      '<p>' + CFKH.escape(article.summary) + '</p>' +
+      '<div class="meta"><div><b>System</b><span>' + CFKH.escape(article.system) + '</span></div><div><b>Audience</b><span>' + CFKH.escape(article.audience) + '</span></div></div>' +
+      '<div class="tags">' + (article.tags || []).slice(0, 5).map(function(tag) { return '<span class="tag">' + CFKH.escape(tag) + '</span>'; }).join('') + '</div>' +
+      '<div class="card-foot"><span>Updated ' + CFKH.escape(formatDate(article.updatedAt)) + '</span><div><button data-favorite="' + CFKH.escape(article.id) + '">' + (favorite ? '★' : '☆') + '</button><button data-open="' + CFKH.escape(article.id) + '">Open</button></div></div>' +
+    '</article>';
+  },
+  access: function() {
+    var editor = Boolean(CFKH.data.user && CFKH.data.user.isEditor);
+    var admin = Boolean(CFKH.data.user && CFKH.data.user.isAdmin);
+    CFKH.$('#createButton').disabled = !editor;
+    CFKH.$('#openBuilderButton').disabled = !editor;
+    CFKH.$('#adminButton').disabled = !admin;
+    CFKH.$('#studioSettingsButton').disabled = !admin;
+  },
+  createForm: function(type) {
+    var options = (CFKH.data.taxonomy.systems || []).map(function(system) { return '<option>' + CFKH.escape(system) + '</option>'; }).join('');
+    var typeOptions = (CFKH.data.taxonomy.types || []).map(function(value) { return '<option ' + (value === type ? 'selected' : '') + '>' + CFKH.escape(value) + '</option>'; }).join('');
+    CFKH.openDrawer('Create ' + type, 'Capture purpose, evidence, and the lifecycle decision for this controlled record.',
+      '<form id="articleForm"><div class="form-grid">' +
+      '<div class="form-field"><label>Content Type</label><select id="fType">' + typeOptions + '</select></div>' +
+      '<div class="form-field"><label>System / Solution</label><select id="fSystem">' + options + '</select></div>' +
+      '<div class="form-field full"><label>Title</label><input id="fTitle" required placeholder="Clear, task-oriented article title"></div>' +
+      '<div class="form-field"><label>Audience</label><input id="fAudience" value="' + CFKH.escape(CFKH.data.settings.defaultAudience || '') + '"></div>' +
+      '<div class="form-field"><label>Owner</label><input id="fOwner" value="' + CFKH.escape(CFKH.data.settings.defaultOwner || '') + '"></div>' +
+      '<div class="form-field full"><label>Purpose / Summary</label><textarea id="fSummary" required placeholder="Describe the support need, operational outcome, or problem resolved."></textarea></div>' +
+      '<div class="form-field"><label>Tags</label><input id="fTags" placeholder="policy, troubleshooting, logs"></div>' +
+      '<div class="form-field"><label>Evidence / Source Reference</label><input id="fSource" placeholder="Ticket, SOP, vendor case, or document"></div>' +
+      '<div class="form-field full"><label>Procedure / Processing Notes</label><textarea id="fNotes" placeholder="Add ordered steps, validation requirements, escalation points, or review notes."></textarea></div>' +
+      '</div><div class="drawer-footer"><button type="button" data-create-status="Draft">Save Draft</button><button type="button" class="review-btn" data-create-status="In Review">Submit for Review</button><button type="submit" class="publish-btn">Approve & Publish</button></div></form>'
+    );
+  },
+  articleDetail: function(article) {
+    var statusOptions = (CFKH.data.taxonomy.statuses || []).map(function(status) { return '<option ' + (status === article.status ? 'selected' : '') + '>' + CFKH.escape(status) + '</option>'; }).join('');
+    CFKH.openDrawer('Process ' + article.id, article.type + ' · revision ' + article.revision + ' · updated ' + formatDate(article.updatedAt),
+      '<div class="form-grid">' +
+      '<div class="form-field full"><label>Title</label><input value="' + CFKH.escape(article.title) + '" disabled></div>' +
+      '<div class="form-field"><label>Lifecycle Status</label><select id="pStatus">' + statusOptions + '</select></div>' +
+      '<div class="form-field"><label>Owner</label><input id="pOwner" value="' + CFKH.escape(article.owner) + '"></div>' +
+      '<div class="form-field full"><label>Procedure / Processing Notes</label><textarea id="pNotes">' + CFKH.escape(article.procedureNotes) + '</textarea></div>' +
+      '<div class="form-field full"><label>Evidence / Source Reference</label><input id="pSource" value="' + CFKH.escape(article.sourceReference) + '"></div>' +
+      '</div><div class="drawer-footer"><button id="saveProcessButton">Save Changes</button><button class="review-btn" id="returnDraftButton">Return to Draft</button><button class="publish-btn" id="publishButton">Approve & Publish</button></div>'
+    );
+  },
+  reviewQueue: function() {
+    var queue = (CFKH.data.articles || []).filter(function(article) { return ['In Review', 'Needs Review'].indexOf(article.status) !== -1 && !article.isArchived; });
+    CFKH.openDrawer('Process Review Queue', 'Records requiring a lifecycle decision before operational publication.',
+      queue.length ? '<div class="studio-actions">' + queue.map(function(article) {
+        return '<button class="create-tile" data-queue-open="' + CFKH.escape(article.id) + '"><span class="create-icon">✓</span><span><b>' + CFKH.escape(article.title) + '</b><small>' + CFKH.escape(article.id) + ' · ' + CFKH.escape(article.status) + '</small></span><i>›</i></button>';
+      }).join('') + '</div>' : '<div class="empty" style="margin-top:14px">No records are currently waiting for review.</div>'
+    );
+  },
+  settings: function() {
+    var settings = CFKH.data.settings || {};
+    CFKH.openDrawer('Lifecycle Settings', 'Administrative settings are applied to the shared service layer.',
+      '<form id="settingsForm"><div class="form-grid">' +
+      '<div class="form-field full"><label>App Title</label><input id="sAppTitle" value="' + CFKH.escape(settings.appTitle || '') + '"></div>' +
+      '<div class="form-field"><label>Review Days</label><input id="sReviewDays" type="number" value="' + CFKH.escape(settings.reviewDays || 180) + '"></div>' +
+      '<div class="form-field"><label>Default Owner</label><input id="sDefaultOwner" value="' + CFKH.escape(settings.defaultOwner || '') + '"></div>' +
+      '<div class="form-field full"><label>Default Audience</label><input id="sDefaultAudience" value="' + CFKH.escape(settings.defaultAudience || '') + '"></div>' +
+      '</div><div class="drawer-footer"><button type="submit" class="publish-btn">Save Settings</button></div></form>'
+    );
+  }
+};
+
+function formatDate(value) {
+  if (!value) return '—';
+  var date = new Date(value);
+  return isNaN(date.getTime()) ? String(value) : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
